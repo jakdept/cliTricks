@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"io"
 	"bufio"
 	"os"
@@ -30,8 +31,11 @@ func PrettyPrint(in io.Reader, out io.Writer, indent string) (err error) {
 	}
 }
 
+var indentVal = flag.String("indent", "  ", "indentation to use")
+
 func main() {
-	if err := PrettyPrint(bufio.NewReader(os.Stdin), bufio.NewWriter(os.Stdout), "\t"); err != nil {
+	flag.Parse()
+	if err := PrettyPrint(bufio.NewReader(os.Stdin), bufio.NewWriter(os.Stdout), *indentVal); err != nil {
 		log.Fatal(err)
 	}
 }
