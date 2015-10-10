@@ -3,15 +3,35 @@ package main
 import (
 	"flag"
 	"io"
+	"strings"
 	"bufio"
 	"os"
-	"strings"
 	"encoding/json"
 	"net/http"
 	"strconv"
 	"errors"
 	"log"
 )
+
+func breakupStringArray(input string) []string {
+	if strings.HasPrefix(input, "[") && strings.HasSuffix(input, "]") {
+		input = strings.TrimPrefix(input, "[")
+		input = strings.TrimSuffix(input, "]")
+	}
+	parts := strings.Split(input, "],[")
+	if len(parts) < 2 {
+		parts = strings.Split(input, "][")
+	}
+	if len(parts) < 2 {
+		parts = strings.Split(input, ",")
+	}
+	for i, __ := range parts {
+		if strings.HasPrefix(parts[i], "\"") && strings.HasSuffix(parts[i], "\"") {
+			parts[i] = strings.Trim(parts[i], "\"")
+		}
+	}
+	return parts
+}
 
 func getBuriedItem(data interface{}, target []string) (interface{}, error) {
 	if dataSafe, ok := data.([]interface{}); ok {
@@ -60,20 +80,6 @@ func setBuriedItem(data, value interface{}, target []string) error {
 		}
 	} else {
 		return errors.New("bad address")
-	}
-}
-
-func setJsonItem(data *interface{}, target string, value interface{}) error {
-	parts := strings.SplitAfterN(target, ",", 2)
-	localPart := strings.TrimSpace(parts[0])
-	localPart = strings.Trim(localPart, string('"'))
-
-	if len(parts[1]) > 0{
-		// there's stuff on the inside to dive into
-		return getJsonItem(&data[localPart], innerPart)
-	} else {
-		data[localPart] = value
-		return nil
 	}
 }
 
