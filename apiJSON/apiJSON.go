@@ -8,19 +8,58 @@ import (
 	"strings"
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"errors"
 	"log"
 )
 
-func getJsonItem(data interface{}, target string) (interface{}, error) {
-	parts := strings.SplitAfterN(target, ",", 2)
-	localPart := strings.TrimSpace(parts[0])
-	localPart = strings.Trim(localPart, string('"'))
-
-	if len(parts[1]) > 0{
-		// there's stuff on the inside to dive into
-		return getJsonItem(data[localPart], innerPart)
+func getBuriedItem(data interface{}, target []string) (interface{}, error) {
+	if dataSafe, ok := data.([]interface{}); ok {
+		targetInt, err := strconv.Atoi(target[0])
+		if err != nil {
+			return nil, err
+		}
+		if len(target) > 1{
+			// there's stuff on the inside to dive into
+			return getBuriedItem(dataSafe[targetInt], target[1:])
+		} else {
+			return dataSafe[targetInt], nil
+		}
+	}	else if dataSafe, ok := data.(map[string]interface{}); ok {
+		if len(target) > 1{
+			// there's stuff on the inside to dive into
+			return getBuriedItem(dataSafe[target[0]], target[1:])
+		} else {
+			return dataSafe[target[0]], nil
+		}
 	} else {
-		return data[localPart], nil
+		return nil, errors.New("bad address")
+	}
+}
+
+func setBuriedItem(data, value interface{}, target []string) error {
+	if dataSafe, ok := data.([]interface{}); ok {
+		targetInt, err := strconv.Atoi(target[0])
+		if err != nil {
+			return err
+		}
+		if len(target) > 1{
+			// there's stuff on the inside to dive into
+			return setBuriedItem(dataSafe[targetInt], value, target[1:])
+		} else {
+			dataSafe[targetInt] = value
+			return nil
+		}
+	}	else if dataSafe, ok := data.(map[string]interface{}); ok {
+		if len(target) > 1{
+			// there's stuff on the inside to dive into
+			return setBuriedItem(dataSafe[target[0]], value, target[1:])
+		} else {
+			dataSafe[target[0]] = value
+			return nil
+		}
+	} else {
+		return errors.New("bad address")
 	}
 }
 
