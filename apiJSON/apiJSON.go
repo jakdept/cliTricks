@@ -4,6 +4,8 @@ import (
 	"flag"
 	"io"
 	"bufio"
+	"io/ioutil"
+	"fmt"
 	"bytes"
 	"os"
 	"encoding/json"
@@ -49,6 +51,11 @@ func loopRequest(requestData interface{}, out io.Writer, username, password, url
   	return err
   }
 
+  _, err = out.Write(responseBytes)
+  if err != nil {
+  	return err
+  }
+
   err = json.Unmarshal(responseBytes, responseData)
   if err != nil {
   	return err
@@ -56,7 +63,7 @@ func loopRequest(requestData interface{}, out io.Writer, username, password, url
 
   var reqPage, curPage, totalPage int
 
-  reqPage, err = cliTricks.GetInt(requestData, locPage)
+  reqPage, err = cliTricks.GetInt(requestData, locReq)
   if err != nil {
   	return fmt.Errorf("bad request page - %v", err)
   }
@@ -75,7 +82,7 @@ func loopRequest(requestData interface{}, out io.Writer, username, password, url
   	curPage += incPage
   	err = cliTricks.SetItem(requestData, curPage, locCur)
   	if err != nil {
-  		fmt.ErrorF("failed to set the current page - %v", err)
+  		fmt.Errorf("failed to set the current page - %v", err)
   	}
 
 	  requestBytes, err = json.Marshal(requestData)
@@ -83,7 +90,7 @@ func loopRequest(requestData interface{}, out io.Writer, username, password, url
 	  	return err
 	  }
 
-	  request.Body = bytes.NewReader(requestBytes)
+	  request.Body = ioutil.NopCloser(bytes.NewReader(requestBytes))
 	  response, err = client.Do(request)
 	  if err != nil {
 	  	return err
@@ -108,61 +115,19 @@ func loopRequest(requestData interface{}, out io.Writer, username, password, url
 }
 
 func ApiJsonRoundTrip(in io.Reader, out io.Writer, url, username, password string, countReq, countGot, countTotal []string) (err error) {
-	var request, response interface{}
-	var requestBytes, responseBytes []byte
-	var current, total int
-
-  jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
-  if err != nil {
-      log.Fatal(err)
-  }
-  client := http.Client{Jar: jar}
-
-	decoder := json.NewDecoder(in)
-
-	requestClient, err := http.NewRequest("POST", url, bytes.NewReader(requestBytes))
-	if username != "" && password != "" {
-		requestClient.SetBasicAuth(username, password)
-	}
+	var requestData interface{}
 
 	for decoder.More() {
-		err = decoder.Decode(&request)
+		err = decoder.Decode(&requestData)
 		if err != nil {
 			return err
 		}
-
-		current, err = cliTricks.getItem(request, []string{"params","page_num"})
+		err = loopRequest(requestData, out, username, password, url, locReq, locCur, locTotal, incPage)
 		if err != nil {
-			log.Fatalf("failed to retrieve item - %v", err)
-		}
-
-		if current, ok := current.(int); !ok {
-
-		}
-
-		for total == 0 || current < total {
-
-			request["params"]["page_num"] = current
-			requestBytes, err = json.Marshal(request)
-			if err != nil {
-				log.Fatalf("failed to build request body - %v\n%s", err, request)
-			}
-
-			client.Body = bytes.NewReader(requestBytes)
-			responseBytes, err := client.Do(requestBytes)
-			if err != nil {
-				log.Fatalf("failed to run request - %v", err)
-			}
-
-			err = json.Decode(responseBytes, &response)
-			if err != nil {
-				log.Fatalf("failed to decode the response body - %v\n%q", err, responseBytes)
-			}
-			current++
-			total = reasponse["page_total"]
-			out.Write(responseBytes)
+			return err
 		}
 	}
+	
 	if err == io.EOF {
 		return nil
 	} else {
