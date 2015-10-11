@@ -8,8 +8,10 @@ import (
 	"os"
 	"encoding/json"
 	"golang.org/x/net/publicsuffix"
+	"github.com/JackKnifed/cliTricks"
 	"net/http"
 	"log"
+	"net/http/cookiejar"
 )
 
 func loopRequest(requestData interface{}, out io.Writer, username, password, url string, locReq, locCur, locTotal []string, incPage int) (error) {
@@ -34,12 +36,18 @@ func loopRequest(requestData interface{}, out io.Writer, username, password, url
   	request.SetBasicAuth(username, password)
   }
 
-  responseBytes, err := client.Do(request)
+  response, err := client.Do(request)
   if err != nil {
   	return err
   }
 
+	var responseBytes []byte
   var responseData interface{}
+
+  _, err = response.Body.Read(responseBytes)
+  if err != nil {
+  	return err
+  }
 
   err = json.Unmarshal(responseBytes, responseData)
   if err != nil {
@@ -76,7 +84,12 @@ func loopRequest(requestData interface{}, out io.Writer, username, password, url
 	  }
 
 	  request.Body = bytes.NewReader(requestBytes)
-	  responseBytes, err := client.Do(request)
+	  response, err = client.Do(request)
+	  if err != nil {
+	  	return err
+	  }
+
+	  _, err = response.Body.Read(responseBytes)
 	  if err != nil {
 	  	return err
 	  }
