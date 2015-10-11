@@ -16,7 +16,7 @@ import (
 	"net/http/cookiejar"
 )
 
-func loopRequest(requestData interface{}, out io.Writer, username, password, url string, locReq, locCur, locTotal []string, incPage int) (error) {
+func loopRequest(requestData interface{}, out io.Writer, username, password, url string, locReq, locCur, locTotal []string, locInc int) (error) {
 
   jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
   if err != nil {
@@ -79,7 +79,7 @@ func loopRequest(requestData interface{}, out io.Writer, username, password, url
 	}
 
   for curPage < totalPage {
-  	curPage += incPage
+  	curPage += locInc
   	err = cliTricks.SetItem(requestData, curPage, locCur)
   	if err != nil {
   		fmt.Errorf("failed to set the current page - %v", err)
@@ -114,20 +114,22 @@ func loopRequest(requestData interface{}, out io.Writer, username, password, url
   return nil
 }
 
-func ApiJsonRoundTrip(in io.Reader, out io.Writer, url, username, password string, countReq, countGot, countTotal []string) (err error) {
+func ApiJsonRoundTrip(in io.Reader, out io.Writer, url, username, password string, locReq, locCur, locTotal []string, locInc int) (err error) {
 	var requestData interface{}
+
+	decoder := json.NewDecoder(in)
 
 	for decoder.More() {
 		err = decoder.Decode(&requestData)
 		if err != nil {
 			return err
 		}
-		err = loopRequest(requestData, out, username, password, url, locReq, locCur, locTotal, incPage)
+		err = loopRequest(requestData, out, username, password, url, locReq, locCur, locTotal, locInc)
 		if err != nil {
 			return err
 		}
 	}
-	
+
 	if err == io.EOF {
 		return nil
 	} else {
@@ -140,7 +142,6 @@ func main() {
 	username := flag.String("username", "", "username to use for authentication")
 	password := flag.String("username", "", "username to use for authentication")
 
-	countReq := 
 	flag.Parse()
 
 	options := map[string]interface{}{
@@ -148,9 +149,5 @@ func main() {
 		"password": password,
 		"url": url,
 
-	}
-
-	if err := PrettyPrint(bufio.NewReader(os.Stdin), bufio.NewWriter(os.Stdout), options); err != nil {
-		log.Fatal(err)
 	}
 }
