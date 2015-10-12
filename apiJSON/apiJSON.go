@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/http/cookiejar"
+	"log"
 	"os"
 )
 
@@ -108,7 +109,7 @@ func loopRequest(requestData interface{}, out io.Writer, opts config) (err error
 		totalPage = 1
 	}
 
-	for curPage < totalPage {
+	for reqPage < totalPage {
 		curPage += opts.locInc
 		err = cliTricks.SetItem(requestData, curPage, opts.locCur)
 		if err != nil {
@@ -179,17 +180,17 @@ func main() {
 	flag.Parse()
 
 	opts := config{
-		username: username,
-		password: password,
-		url:      url,
-		locInc:   locInc,
-		locReq:   cliTricks.BreakupStringArray(locReqString),
-		locCur:   cliTricks.BreakupStringArray(locCurString),
-		locTotal: cliTricks.BreakupStringArray(locTotalString),
+		username: *username,
+		password: *password,
+		url:      *url,
+		locInc:   *locInc,
+		locReq:   cliTricks.BreakupStringArray(*locReqString),
+		locCur:   cliTricks.BreakupStringArray(*locCurString),
+		locTotal: cliTricks.BreakupStringArray(*locTotalString),
 	}
 
-	err := ApiJsonRoundTrip(bufio.NewReader(os.Stdin), bufio.NewWRiter(os.Stdout), opts)
+	err := ApiJsonRoundTrip(bufio.NewReader(os.Stdin), bufio.NewWriter(os.Stdout), opts)
 	if err != nil {
-		return err
+		log.Fatal(err)
 	}
 }
