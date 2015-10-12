@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"bytes"
 	"encoding/json"
 	"flag"
@@ -189,7 +188,7 @@ func main() {
 		locTotal: cliTricks.BreakupStringArray(*locTotalString),
 	}
 
-	err := ApiJsonRoundTrip(bufio.NewReader(os.Stdin), bufio.NewWriter(os.Stdout), opts)
+	err := ApiJsonRoundTrip(os.Stdin, os.Stdout, opts)
 	if err != nil {
 		log.Fatal(err)
 	}
