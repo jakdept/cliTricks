@@ -20,7 +20,7 @@ func GetInt(data interface{}, target[]string) (int, error) {
   return value, nil
 }
 
-func breakupStringArray(input string) []string {
+func BreakupStringArray(input string) []string {
 	if strings.HasPrefix(input, "[") && strings.HasSuffix(input, "]") {
 		input = strings.TrimPrefix(input, "[")
 		input = strings.TrimSuffix(input, "]")
