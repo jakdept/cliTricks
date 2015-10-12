@@ -10,13 +10,12 @@ import (
 	"golang.org/x/net/publicsuffix"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"os"
 )
 
-var options struct {
+type config struct {
 	username string
 	password string
 	url      string
@@ -26,11 +25,11 @@ var options struct {
 	locInc   int
 }
 
-func loopRequest(requestData interface{}, out io.Writer, opts options) (err error) {
+func loopRequest(requestData interface{}, out io.Writer, opts config) (err error) {
 
 	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	client := http.Client{Jar: jar}
 
@@ -76,14 +75,14 @@ func loopRequest(requestData interface{}, out io.Writer, opts options) (err erro
 		return err
 	}
 
-	if len(opts.locReq) < 1 && len(opts.locCur) < 1 && len(opts.locTotal) < 1  {
+	if len(opts.locReq) < 1 && len(opts.locCur) < 1 && len(opts.locTotal) < 1 {
 		return nil
 	}
 
 	var reqPage, curPage, totalPage int
 
 	if len(opts.locReq) > 0 {
-		reqPage, err = cliTricks.GetInt(requestData, locReq)
+		reqPage, err = cliTricks.GetInt(requestData, opts.locReq)
 		if err != nil {
 			return fmt.Errorf("bad request page - %v", err)
 		}
@@ -92,7 +91,7 @@ func loopRequest(requestData interface{}, out io.Writer, opts options) (err erro
 	}
 
 	if len(opts.locCur) > 0 {
-	curPage, err = cliTricks.GetInt(requestData, locCur)
+		curPage, err = cliTricks.GetInt(requestData, opts.locCur)
 		if err != nil {
 			return fmt.Errorf("bad current page - %v", err)
 		}
@@ -101,7 +100,7 @@ func loopRequest(requestData interface{}, out io.Writer, opts options) (err erro
 	}
 
 	if len(opts.locTotal) > 0 {
-		totalPage, err = cliTricks.GetInt(requestData, locTotal)
+		totalPage, err = cliTricks.GetInt(requestData, opts.locTotal)
 		if err != nil {
 			return fmt.Errorf("bad total page - %v", err)
 		}
@@ -110,7 +109,7 @@ func loopRequest(requestData interface{}, out io.Writer, opts options) (err erro
 	}
 
 	for curPage < totalPage {
-		curPage += locInc
+		curPage += opts.locInc
 		err = cliTricks.SetItem(requestData, curPage, opts.locCur)
 		if err != nil {
 			fmt.Errorf("failed to set the current page - %v", err)
@@ -145,7 +144,7 @@ func loopRequest(requestData interface{}, out io.Writer, opts options) (err erro
 	return nil
 }
 
-func ApiJsonRoundTrip(in io.Reader, out io.Writer, opt options) (err error) {
+func ApiJsonRoundTrip(in io.Reader, out io.Writer, opt config) (err error) {
 	var requestData interface{}
 
 	decoder := json.NewDecoder(in)
@@ -172,18 +171,25 @@ func main() {
 	locReqString := flag.String("requestedPage", "", "location in the request of the page")
 	locCurString := flag.String("currentPage", "", "location in the response of the page returned")
 	locTotalString := flag.String("totalPage", "", "location in the response of the total pages")
-
-	options := options{
-		username: flag.String("username", "", "username to use for authentication"),
-		password: flag.String("username", "", "username to use for authentication"),
-		url: flag.String("url", "", "url location to direct POSt"),
-		locInc: flag.Int("pageIncrement", 1, "number to increase location request by"),
-	}
+	username := flag.String("username", "", "username to use for authentication")
+	password := flag.String("username", "", "username to use for authentication")
+	url := flag.String("url", "", "url location to direct POSt")
+	locInc := flag.Int("pageIncrement", 1, "number to increase location request by")
 
 	flag.Parse()
 
-	options.locReq = cliTricks.BreakupStringArray(locReqString)
-	options.locCur = cliTricks.BreakupStringArray(locCurString)
-	options.locTotal = cliTricks.BreakupStringArray(locTotalString)
+	opts := config{
+		username: username,
+		password: password,
+		url:      url,
+		locInc:   locInc,
+		locReq:   cliTricks.BreakupStringArray(locReqString),
+		locCur:   cliTricks.BreakupStringArray(locCurString),
+		locTotal: cliTricks.BreakupStringArray(locTotalString),
+	}
 
+	err := ApiJsonRoundTrip(bufio.NewReader(os.Stdin), bufio.NewWRiter(os.Stdout), opts)
+	if err != nil {
+		return err
+	}
 }
