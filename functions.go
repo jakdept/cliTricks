@@ -7,19 +7,6 @@ import (
 	"errors"
 )
 
-func GetInt(data interface{}, target[]string) (int, error) {
-	var ok bool
-	var value int
-  tempItem, err := GetItem(data, target)
-  if err != nil {
-  	return -1, fmt.Errorf("bad item - %v", err)
-  }
-  if value, ok = tempItem.(int); !ok {
-  	return -1, fmt.Errorf("got non-int item - %s", tempItem)
-  }
-  return value, nil
-}
-
 func BreakupStringArray(input string) []string {
 	if strings.HasPrefix(input, "[") && strings.HasSuffix(input, "]") {
 		input = strings.TrimPrefix(input, "[")
@@ -33,6 +20,7 @@ func BreakupStringArray(input string) []string {
 		parts = strings.Split(input, ",")
 	}
 	for i, _ := range parts {
+		parts[i] = strings.TrimSpace(parts[i])
 		if strings.HasPrefix(parts[i], "\"") && strings.HasSuffix(parts[i], "\"") {
 			parts[i] = strings.Trim(parts[i], "\"")
 		}
@@ -62,6 +50,19 @@ func GetItem(data interface{}, target []string) (interface{}, error) {
 	} else {
 		return nil, errors.New("bad address")
 	}
+}
+
+func GetInt(data interface{}, target[]string) (int, error) {
+	var ok bool
+	var value int
+  tempItem, err := GetItem(data, target)
+  if err != nil {
+  	return -1, fmt.Errorf("bad item - %v", err)
+  }
+  if value, ok = tempItem.(int); !ok {
+  	return -1, fmt.Errorf("got non-int item - %s", tempItem)
+  }
+  return value, nil
 }
 
 func SetItem(data, value interface{}, target []string) error {
