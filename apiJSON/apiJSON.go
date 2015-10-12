@@ -26,7 +26,7 @@ var options struct {
 	locInc   int
 }
 
-func loopRequest(requestData interface{}, out io.Writer, username, password, url string, locReq, locCur, locTotal []string, locInc int) error {
+func loopRequest(requestData interface{}, out io.Writer, opts options) (err error) {
 
 	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
 	if err != nil {
@@ -39,13 +39,13 @@ func loopRequest(requestData interface{}, out io.Writer, username, password, url
 		return err
 	}
 
-	request, err := http.NewRequest("POST", url, bytes.NewReader(requestBytes))
+	request, err := http.NewRequest("POST", opts.url, bytes.NewReader(requestBytes))
 	if err != nil {
 		return err
 	}
 
-	if username != "" && password != "" {
-		request.SetBasicAuth(username, password)
+	if opts.username != "" && opts.password != "" {
+		request.SetBasicAuth(opts.username, opts.password)
 	}
 
 	response, err := client.Do(request)
@@ -71,26 +71,47 @@ func loopRequest(requestData interface{}, out io.Writer, username, password, url
 		return err
 	}
 
+	_, err = out.Write(responseBytes)
+	if err != nil {
+		return err
+	}
+
+	if len(opts.locReq) < 1 && len(opts.locCur) < 1 && len(opts.locTotal) < 1  {
+		return nil
+	}
+
 	var reqPage, curPage, totalPage int
 
-	reqPage, err = cliTricks.GetInt(requestData, locReq)
-	if err != nil {
-		return fmt.Errorf("bad request page - %v", err)
+	if len(opts.locReq) > 0 {
+		reqPage, err = cliTricks.GetInt(requestData, locReq)
+		if err != nil {
+			return fmt.Errorf("bad request page - %v", err)
+		}
+	} else {
+		reqPage = 1
 	}
 
+	if len(opts.locCur) > 0 {
 	curPage, err = cliTricks.GetInt(requestData, locCur)
-	if err != nil {
-		return fmt.Errorf("bad current page - %v", err)
+		if err != nil {
+			return fmt.Errorf("bad current page - %v", err)
+		}
+	} else {
+		curPage = 1
 	}
 
-	totalPage, err = cliTricks.GetInt(requestData, locTotal)
-	if err != nil {
-		return fmt.Errorf("bad current page - %v", err)
+	if len(opts.locTotal) > 0 {
+		totalPage, err = cliTricks.GetInt(requestData, locTotal)
+		if err != nil {
+			return fmt.Errorf("bad total page - %v", err)
+		}
+	} else {
+		totalPage = 1
 	}
 
 	for curPage < totalPage {
 		curPage += locInc
-		err = cliTricks.SetItem(requestData, curPage, locCur)
+		err = cliTricks.SetItem(requestData, curPage, opts.locCur)
 		if err != nil {
 			fmt.Errorf("failed to set the current page - %v", err)
 		}
@@ -116,7 +137,7 @@ func loopRequest(requestData interface{}, out io.Writer, username, password, url
 			return err
 		}
 
-		curPage, err = cliTricks.GetInt(requestData, locCur)
+		curPage, err = cliTricks.GetInt(requestData, opts.locCur)
 		if err != nil {
 			return fmt.Errorf("bad current page - %v", err)
 		}
@@ -124,7 +145,7 @@ func loopRequest(requestData interface{}, out io.Writer, username, password, url
 	return nil
 }
 
-func ApiJsonRoundTrip(in io.Reader, out io.Writer, url, username, password string, locReq, locCur, locTotal []string, locInc int) (err error) {
+func ApiJsonRoundTrip(in io.Reader, out io.Writer, opt options) (err error) {
 	var requestData interface{}
 
 	decoder := json.NewDecoder(in)
@@ -134,7 +155,7 @@ func ApiJsonRoundTrip(in io.Reader, out io.Writer, url, username, password strin
 		if err != nil {
 			return err
 		}
-		err = loopRequest(requestData, out, username, password, url, locReq, locCur, locTotal, locInc)
+		err = loopRequest(requestData, out, opt)
 		if err != nil {
 			return err
 		}
@@ -164,5 +185,5 @@ func main() {
 	options.locReq = cliTricks.BreakupStringArray(locReqString)
 	options.locCur = cliTricks.BreakupStringArray(locCurString)
 	options.locTotal = cliTricks.BreakupStringArray(locTotalString)
-	
+
 }
