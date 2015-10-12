@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"io"
-	"bufio"
 	"os"
 	"encoding/json"
 	"log"
@@ -23,6 +22,7 @@ func PrettyPrint(in io.Reader, out io.Writer, indent string) (err error) {
 			return err
 		}
 		out.Write(writeBuf)
+		out.Write([]byte("\n"))
 	}
 	if err == io.EOF {
 		return nil
@@ -35,7 +35,7 @@ var indentVal = flag.String("indent", "  ", "indentation to use")
 
 func main() {
 	flag.Parse()
-	if err := PrettyPrint(bufio.NewReader(os.Stdin), bufio.NewWriter(os.Stdout), *indentVal); err != nil {
+	if err := PrettyPrint(os.Stdin, os.Stdout, *indentVal); err != nil {
 		log.Fatal(err)
 	}
 }
