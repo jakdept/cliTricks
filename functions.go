@@ -53,6 +53,8 @@ func GetItem(data interface{}, target []interface{}) (interface{}, error) {
 	if targetInt, ok := target[0].(int); ok {
 		if dataSafe, ok := data.([]interface{}); !ok{
 			return nil, errors.New("got array address for non-array")
+		} else if targetInt < 0 || targetInt > len(dataSafe) - 1 {
+			return nil, errors.New("non-existant array position")
 		} else {
 			if len(target) > 1 {
 				return GetItem(dataSafe[targetInt], target[1:])
@@ -63,17 +65,45 @@ func GetItem(data interface{}, target []interface{}) (interface{}, error) {
 	} else if targetString, ok := target[0].(string); ok {
 		if dataSafe, ok := data.(map[string]interface{}); !ok {
 			return nil, errors.New("got map address for non-map")
+		} else if value, ok := dataSafe[targetString]; !ok {
+			return nil, errors.New("non-existant map position")
 		} else {
 			if len(target) > 1 {
-				return GetItem(dataSafe[targetString], target[1:])
+				return GetItem(value, target[1:])
 			} else {
-				return dataSafe[targetString], nil
+				return value, nil
 			}
 		}
 	} else {
 		return nil, fmt.Errorf("bad address - %s", target)
 	}
 }
+
+// func SetItem(data, value interface{}, target []interface{}) (error) {
+// 	if targetInt, ok := target[0].(int); ok {
+// 		if dataSafe, ok := data.([]interface{}); !ok{
+// 			return nil, errors.New("got array address for non-array")
+// 		} else {
+// 			if len(target) > 1 {
+// 				return GetItem(dataSafe[targetInt], target[1:])
+// 			} else {
+// 				return dataSafe[targetInt], nil
+// 			}
+// 		}
+// 	} else if targetString, ok := target[0].(string); ok {
+// 		if dataSafe, ok := data.(map[string]interface{}); !ok {
+// 			return nil, errors.New("got map address for non-map")
+// 		} else {
+// 			if len(target) > 1 {
+// 				return GetItem(dataSafe[targetString], target[1:])
+// 			} else {
+// 				return dataSafe[targetString], nil
+// 			}
+// 		}
+// 	} else {
+// 		return nil, fmt.Errorf("bad address - %s", target)
+// 	}
+// }
 
 // func SetItem(data, value interface{}, target []interface{}) error {
 // 	if dataSafe, ok := data.([]interface{}); ok {

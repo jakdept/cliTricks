@@ -88,23 +88,23 @@ func TestGetIntJSON(t *testing.T) {
 	}{
 		{
 			input:  []byte(`{"params":{"data":63}}`),
-			target: []string{"params", "data"},
+			target: []interface{}{"params", "data"},
 			output: 63,
 			status: nil,
 		}, {
 			// we always round down
 			input:  []byte(`{"params":{"data":63.9}}`),
-			target: []string{"params", "data"},
+			target: []interface{}{"params", "data"},
 			output: 63,
 			status: nil,
 		}, {
 			input:  []byte(`{"params":{"data":"potato"}}`),
-			target: []string{"params", "data"},
+			target: []interface{}{"params", "data"},
 			output: -1,
 			status: errors.New("got non-float item - potato"),
 		}, {
 			input:  []byte(`{"params":{"data":"potato"}}`),
-			target: []string{"bad", "address"},
+			target: []interface{}{"bad", "address"},
 			output: -1,
 			status: errors.New("bad item - bad address - [address]"),
 		},
@@ -130,38 +130,38 @@ func TestGetItemJSON(t *testing.T) {
 	}{
 		{
 			input:  []byte(`{"params":{"data":63}}`),
-			target: []string{"params", "data"},
+			target: []interface{}{"params", "data"},
 			output: []byte(`63`),
 			status: nil,
 		}, {
 			// we always round down
 			input:  []byte(`{"params":{"data":63.9}}`),
-			target: []string{"params", "data"},
+			target: []interface{}{"params", "data"},
 			output: []byte(`63.9`),
 			status: nil,
 		}, {
 			input:  []byte(`{"params":{"data":"potato"}}`),
-			target: []string{"params", "data"},
+			target: []interface{}{"params", "data"},
 			output: []byte(`"potato"`),
 			status: nil,
 		}, {
 			input:  []byte(`{"numbers":[4,8,15,16,23,42,63]}`),
-			target: []string{"numbers", "3"},
+			target: []interface{}{"numbers", "3"},
 			output: []byte(`16`),
 			status: nil,
 		}, {
 			input:  []byte(`{"numbers":[4,8,15,16,23,42,63]}`),
-			target: []string{"numbers", "potato"},
+			target: []interface{}{"numbers", "potato"},
 			output: []byte("null"),
 			status: errors.New("got non-int address for []interface{}"),
 		}, {
 			input:  []byte(`[["apple","apricot","acorn"],"banana",["chestnut","cookie"]]`),
-			target: []string{"0", "1"},
+			target: []interface{}{"0", "1"},
 			output: []byte(`"apricot"`),
 			status: nil,
 		}, {
 			input:  []byte(`{"params":{"data":"potato"}}`),
-			target: []string{"bad", "address"},
+			target: []interface{}{"bad", "address"},
 			output: []byte("null"),
 			status: errors.New("bad address - [address]"),
 		},
