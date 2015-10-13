@@ -12,23 +12,26 @@ import (
 func TestBreakupStringArray(t *testing.T) {
 	testData := []struct {
 		input  string
-		output []string
+		output []interface{}
 	}{
 		{
 			input:  "apple,banana,cherry",
-			output: []string{"apple", "banana", "cherry"},
+			output: []interface{}{"apple", "banana", "cherry"},
 		}, {
 			input:  "Dog, Eagle, Fox",
-			output: []string{"Dog", "Eagle", "Fox"},
+			output: []interface{}{"Dog", "Eagle", "Fox"},
 		}, {
 			input:  "[Green Beans][Hot Tamales][Ice Cream]",
-			output: []string{"Green Beans", "Hot Tamales", "Ice Cream"},
+			output: []interface{}{"Green Beans", "Hot Tamales", "Ice Cream"},
 		}, {
 			input:  "[JellyBean],[KitKat],[Marshmallow]",
-			output: []string{"JellyBean", "KitKat", "Marshmallow"},
+			output: []interface{}{"JellyBean", "KitKat", "Marshmallow"},
 		}, {
 			input:  "[\"Nutella\"],[\"Oatmeal\"],[\"Pie\"]",
-			output: []string{"Nutella", "Oatmeal", "Pie"},
+			output: []interface{}{"Nutella", "Oatmeal", "Pie"},
+		},{
+			input:  "apple,banana,cherry,4,5",
+			output: []interface{}{"apple", "banana", "cherry",4,5},
 		},
 	}
 
