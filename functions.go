@@ -36,6 +36,19 @@ func BreakupArray(input string) ([]interface{}) {
 	return output
 }
 
+func GetInt(data interface{}, target []interface{}) (int, error) {
+	var ok bool
+	var value float64
+	tempItem, err := GetItem(data, target)
+	if err != nil {
+		return -1, fmt.Errorf("bad item - %v", err)
+	}
+	if value, ok = tempItem.(float64); !ok {
+		return -1, fmt.Errorf("got non-float item - %s", tempItem)
+	}
+	return int(value), nil
+}
+
 func GetItem(data interface{}, target []interface{}) (interface{}, error) {
 	if targetInt, ok := target[0].(int); ok {
 		if dataSafe, ok := data.([]interface{}); !ok{
@@ -60,19 +73,6 @@ func GetItem(data interface{}, target []interface{}) (interface{}, error) {
 	} else {
 		return nil, fmt.Errorf("bad address - %s", target)
 	}
-}
-
-func GetInt(data interface{}, target []interface{}) (int, error) {
-	var ok bool
-	var value float64
-	tempItem, err := GetItem(data, target)
-	if err != nil {
-		return -1, fmt.Errorf("bad item - %v", err)
-	}
-	if value, ok = tempItem.(float64); !ok {
-		return -1, fmt.Errorf("got non-float item - %s", tempItem)
-	}
-	return int(value), nil
 }
 
 // func SetItem(data, value interface{}, target []interface{}) error {
