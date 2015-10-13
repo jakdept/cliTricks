@@ -32,7 +32,7 @@ func GetItem(data interface{}, target []string) (interface{}, error) {
 	if dataSafe, ok := data.([]interface{}); ok {
 		targetInt, err := strconv.Atoi(target[0])
 		if err != nil {
-			return nil, err
+			return nil, errors.New("got non-int address for []interface{}")
 		}
 		if len(target) > 1 {
 			// there's stuff on the inside to dive into
