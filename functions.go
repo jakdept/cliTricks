@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func BreakupStringArray(input string) []string {
+func BreakupArray(input string) ([]interface{}) {
 	if strings.HasPrefix(input, "[") && strings.HasSuffix(input, "]") {
 		input = strings.TrimPrefix(input, "[")
 		input = strings.TrimSuffix(input, "]")
@@ -19,6 +19,7 @@ func BreakupStringArray(input string) []string {
 	if len(parts) < 2 {
 		parts = strings.Split(input, ",")
 	}
+	output := make([]interface{}, len(parts))
 	for i, _ := range parts {
 		parts[i] = strings.TrimSpace(parts[i])
 		if strings.HasPrefix(parts[i], "\"") && strings.HasSuffix(parts[i], "\"") {

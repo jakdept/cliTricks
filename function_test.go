@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-func TestBreakupStringArray(t *testing.T) {
+func TestBreakupArray(t *testing.T) {
 	testData := []struct {
 		input  string
 		output []interface{}
