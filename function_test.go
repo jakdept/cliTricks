@@ -1,8 +1,10 @@
 package cliTricks
 
 import (
-"testing"
+"fmt"
+	"testing"
 	"github.com/stretchr/testify/assert"
+	"encoding/json"
 	)
 
 func TestBreakupStringArray(t *testing.T) {
@@ -28,7 +30,55 @@ func TestBreakupStringArray(t *testing.T) {
 		},
 	}
 
-	for _, individualTest := range testData {
-			assert.Equal(t, individualTest.output, BreakupStringArray(individualTest.input), "BreakupStringArray returned non-expected results")
+	for _, oneTest := range testData {
+			assert.Equal(t, oneTest.output, BreakupStringArray(oneTest.input), "BreakupStringArray returned non-expected results")
 	}
 }
+
+// OMG GetItem works. Kinda. A bit. w/e.
+func ExampleGetItem(){
+	testBytes := []byte(`{"Everything":"Awesome","Team":{"Everything":"Cool"}}`)
+	var testData interface{}
+	err := json.Unmarshal(testBytes, &testData)
+	if err != nil {
+		fmt.Printf("hit a snag unmarshalling the data - %v", err)
+	}
+
+	item, err := GetItem(testData, []string{"Team", "Everything"})
+	if err != nil {
+		fmt.Printf("hit a snag retrieving the item - %v", err)
+	}
+
+	fmt.Print(item)
+
+	// Output:
+	// Cool
+}
+
+/*
+func TestGetInt(t *testing.T) {
+	testData := []struct{
+		input interface{}
+		target []string
+		output int
+	}{
+		{
+			input: interface{}{
+					map[string]interface{}{
+						"params": map[string]int{
+							"data":63,
+					},
+				},
+			},
+			target: []string{"params", "data",},
+			output: 63,
+		},
+	}
+
+	for _, oneTest := range testData {
+		result, err := GetInt(oneTest.input, oneTest.target)
+		assert.Equal(t, oneTest.output, result)
+		assert.NoError(t, err)
+	}
+}
+*/
