@@ -22,10 +22,17 @@ func BreakupStringArray(input string) []string {
 	for i, _ := range parts {
 		parts[i] = strings.TrimSpace(parts[i])
 		if strings.HasPrefix(parts[i], "\"") && strings.HasSuffix(parts[i], "\"") {
-			parts[i] = strings.Trim(parts[i], "\"")
+			output[i] = strings.Trim(parts[i], "\"")
+		} else {
+			number, err := strconv.Atoi(parts[i])
+			if err == nil {
+				output[i] = number
+			} else {
+				output[i] = parts[i]
+			}
 		}
 	}
-	return parts
+	return output
 }
 
 func GetItem(data interface{}, target []string) (interface{}, error) {
