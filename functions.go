@@ -36,31 +36,33 @@ func BreakupArray(input string) ([]interface{}) {
 	return output
 }
 
-func GetItem(data interface{}, target []string) (interface{}, error) {
-	if dataSafe, ok := data.([]interface{}); ok {
-		targetInt, err := strconv.Atoi(target[0])
-		if err != nil {
-			return nil, errors.New("got non-int address for []interface{}")
-		}
-		if len(target) > 1 {
-			// there's stuff on the inside to dive into
-			return GetItem(dataSafe[targetInt], target[1:])
+func GetItem(data interface{}, target []interface{}) (interface{}, error) {
+	if targetInt, ok := target[0].(int); ok {
+		if dataSafe, ok := data.([]interface{}); !ok{
+			return nil, errors.New("got array address for non-array")
 		} else {
-			return dataSafe[targetInt], nil
+			if len(target) > 1 {
+				return GetItem(dataSafe[targetInt], target[1:])
+			} else {
+				return dataSafe[targetInt], nil
+			}
 		}
-	} else if dataSafe, ok := data.(map[string]interface{}); ok {
-		if len(target) > 1 {
-			// there's stuff on the inside to dive into
-			return GetItem(dataSafe[target[0]], target[1:])
+	} else if targetString, ok := target[0].(string); ok {
+		if dataSafe, ok := data.(map[string]interface{}); !ok {
+			return nil, errors.New("got map address for non-map")
 		} else {
-			return dataSafe[target[0]], nil
+			if len(target) > 1 {
+				return GetItem(dataSafe[targetString], target[1:])
+			} else {
+				return dataSafe[targetString], nil
+			}
 		}
 	} else {
 		return nil, fmt.Errorf("bad address - %s", target)
 	}
 }
 
-func GetInt(data interface{}, target []string) (int, error) {
+func GetInt(data interface{}, target []interface{}) (int, error) {
 	var ok bool
 	var value float64
 	tempItem, err := GetItem(data, target)
@@ -73,28 +75,28 @@ func GetInt(data interface{}, target []string) (int, error) {
 	return int(value), nil
 }
 
-func SetItem(data, value interface{}, target []string) error {
-	if dataSafe, ok := data.([]interface{}); ok {
-		targetInt, err := strconv.Atoi(target[0])
-		if err != nil {
-			return err
-		}
-		if len(target) > 1 {
-			// there's stuff on the inside to dive into
-			return SetItem(dataSafe[targetInt], value, target[1:])
-		} else {
-			dataSafe[targetInt] = value
-			return nil
-		}
-	} else if dataSafe, ok := data.(map[string]interface{}); ok {
-		if len(target) > 1 {
-			// there's stuff on the inside to dive into
-			return SetItem(dataSafe[target[0]], value, target[1:])
-		} else {
-			dataSafe[target[0]] = value
-			return nil
-		}
-	} else {
-		return errors.New("bad address")
-	}
-}
+// func SetItem(data, value interface{}, target []interface{}) error {
+// 	if dataSafe, ok := data.([]interface{}); ok {
+// 		targetInt, err := strconv.Atoi(target[0])
+// 		if err != nil {
+// 			return err
+// 		}
+// 		if len(target) > 1 {
+// 			// there's stuff on the inside to dive into
+// 			return SetItem(dataSafe[targetInt], value, target[1:])
+// 		} else {
+// 			dataSafe[targetInt] = value
+// 			return nil
+// 		}
+// 	} else if dataSafe, ok := data.(map[string]interface{}); ok {
+// 		if len(target) > 1 {
+// 			// there's stuff on the inside to dive into
+// 			return SetItem(dataSafe[target[0]], value, target[1:])
+// 		} else {
+// 			dataSafe[target[0]] = value
+// 			return nil
+// 		}
+// 	} else {
+// 		return errors.New("bad address")
+// 	}
+// }

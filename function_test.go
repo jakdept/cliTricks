@@ -36,7 +36,7 @@ func TestBreakupArray(t *testing.T) {
 	}
 
 	for _, oneTest := range testData {
-		assert.Equal(t, oneTest.output, BreakupStringArray(oneTest.input), "BreakupStringArray returned non-expected results")
+		assert.Equal(t, oneTest.output, BreakupArray(oneTest.input), "BreakupStringArray returned non-expected results")
 	}
 }
 
@@ -48,7 +48,7 @@ func ExampleGetItem() {
 		fmt.Printf("hit a snag unmarshalling the data - %v", err)
 	}
 
-	item, err := GetItem(testData, []string{"Team", "Everything"})
+	item, err := GetItem(testData, []interface{}{"Team", "Everything"})
 	if err != nil {
 		fmt.Printf("hit a snag retrieving the item - %v", err)
 	}
@@ -58,39 +58,31 @@ func ExampleGetItem() {
 	// Cool
 }
 
-// func TestGetInt(t *testing.T) {
-// 	testData := []struct{
-// 		input interface{}
-// 		target []string
-// 		output int
-// 	}{
-// 		{
-// 			input: map[string]interface{}{
-// 						"params": map[string]float64{
-// 							"data": 63,
-// 					},
-// 			},
-// 			target: []string{"params", "data",},
-// 			output: 63,
-// 		},
-// 	}
+func ExampleGetInt() {
+	testBytes := []byte(`{"Everything":"Awesome","Team":{"Everything":"Cool", "Solution": 63}}`)
+	var testData interface{}
+	err := json.Unmarshal(testBytes, &testData)
+	if err != nil {
+		fmt.Printf("hit a snag unmarshalling the data - %v", err)
+	}
 
-// 	for _, oneTest := range testData {
-// 		result, err := GetInt(oneTest.input, oneTest.target)
-// 		assert.Equal(t, oneTest.output, result)
-// 		assert.NoError(t, err)
+	item, err := GetInt(testData, []interface{}{"Team", "Solution"})
+	if err != nil {
+		fmt.Printf("hit a snag retrieving the item - %v", err)
+		return
+	}
+	fmt.Println(item)
+	fmt.Println(reflect.TypeOf(item))
 
-// 		result2, err := GetItem(oneTest.input, []string{"params"})
-// 		fmt.Println(oneTest.input)
-// 		fmt.Println(oneTest.output)
-// 		fmt.Println(result2)
-// 	}
-// }
+	// Output:
+	// 63
+	// int
+}
 
 func TestGetIntJSON(t *testing.T) {
 	testData := []struct {
 		input  []byte
-		target []string
+		target []interface{}
 		output int
 		status error
 	}{
@@ -132,7 +124,7 @@ func TestGetIntJSON(t *testing.T) {
 func TestGetItemJSON(t *testing.T) {
 	testData := []struct {
 		input  []byte
-		target []string
+		target []interface{}
 		output []byte
 		status error
 	}{
@@ -263,23 +255,3 @@ func TestSetItemJSON(t *testing.T) {
 	}
 }
 
-func ExampleGetInt() {
-	testBytes := []byte(`{"Everything":"Awesome","Team":{"Everything":"Cool", "Solution": 63}}`)
-	var testData interface{}
-	err := json.Unmarshal(testBytes, &testData)
-	if err != nil {
-		fmt.Printf("hit a snag unmarshalling the data - %v", err)
-	}
-
-	item, err := GetInt(testData, []string{"Team", "Solution"})
-	if err != nil {
-		fmt.Printf("hit a snag retrieving the item - %v", err)
-		return
-	}
-	fmt.Println(item)
-	fmt.Println(reflect.TypeOf(item))
-
-	// Output:
-	// 63
-	// int
-}
