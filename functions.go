@@ -1,10 +1,10 @@
 package cliTricks
 
 import (
-	"strings"
+	"errors"
 	"fmt"
 	"strconv"
-	"errors"
+	"strings"
 )
 
 func BreakupStringArray(input string) []string {
@@ -34,14 +34,14 @@ func GetItem(data interface{}, target []string) (interface{}, error) {
 		if err != nil {
 			return nil, err
 		}
-		if len(target) > 1{
+		if len(target) > 1 {
 			// there's stuff on the inside to dive into
 			return GetItem(dataSafe[targetInt], target[1:])
 		} else {
 			return dataSafe[targetInt], nil
 		}
-	}	else if dataSafe, ok := data.(map[string]interface{}); ok {
-		if len(target) > 1{
+	} else if dataSafe, ok := data.(map[string]interface{}); ok {
+		if len(target) > 1 {
 			// there's stuff on the inside to dive into
 			return GetItem(dataSafe[target[0]], target[1:])
 		} else {
@@ -52,17 +52,17 @@ func GetItem(data interface{}, target []string) (interface{}, error) {
 	}
 }
 
-func GetInt(data interface{}, target[]string) (int, error) {
+func GetInt(data interface{}, target []string) (int, error) {
 	var ok bool
-	var value int
-  tempItem, err := GetItem(data, target)
-  if err != nil {
-  	return -1, fmt.Errorf("bad item - %v", err)
-  }
-  if value, ok = tempItem.(int); !ok {
-  	return -1, fmt.Errorf("got non-int item - %s", tempItem)
-  }
-  return value, nil
+	var value float64
+	tempItem, err := GetItem(data, target)
+	if err != nil {
+		return -1, fmt.Errorf("bad item - %v", err)
+	}
+	if value, ok = tempItem.(float64); !ok {
+		return -1, fmt.Errorf("got non-float item - %s", tempItem)
+	}
+	return int(value), nil
 }
 
 func SetItem(data, value interface{}, target []string) error {
@@ -71,15 +71,15 @@ func SetItem(data, value interface{}, target []string) error {
 		if err != nil {
 			return err
 		}
-		if len(target) > 1{
+		if len(target) > 1 {
 			// there's stuff on the inside to dive into
 			return SetItem(dataSafe[targetInt], value, target[1:])
 		} else {
 			dataSafe[targetInt] = value
 			return nil
 		}
-	}	else if dataSafe, ok := data.(map[string]interface{}); ok {
-		if len(target) > 1{
+	} else if dataSafe, ok := data.(map[string]interface{}); ok {
+		if len(target) > 1 {
 			// there's stuff on the inside to dive into
 			return SetItem(dataSafe[target[0]], value, target[1:])
 		} else {

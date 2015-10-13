@@ -2,6 +2,7 @@ package cliTricks
 
 import (
 "fmt"
+"reflect"
 	"testing"
 	"github.com/stretchr/testify/assert"
 	"encoding/json"
@@ -48,11 +49,31 @@ func ExampleGetItem(){
 	if err != nil {
 		fmt.Printf("hit a snag retrieving the item - %v", err)
 	}
-
-	fmt.Print(item)
+	fmt.Println(item)
 
 	// Output:
 	// Cool
+}
+
+func ExampleGetInt(){
+	testBytes := []byte(`{"Everything":"Awesome","Team":{"Everything":"Cool", "Solution": 63}}`)
+	var testData interface{}
+	err := json.Unmarshal(testBytes, &testData)
+	if err != nil {
+		fmt.Printf("hit a snag unmarshalling the data - %v", err)
+	}
+
+	item, err := GetInt(testData, []string{"Team", "Solution"})
+	if err != nil {
+		fmt.Printf("hit a snag retrieving the item - %v", err)
+		return
+	}
+	fmt.Println(item)
+	fmt.Println(reflect.TypeOf(item))
+
+	// Output:
+	// 63
+	// int
 }
 
 /*
