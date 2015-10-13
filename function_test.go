@@ -150,6 +150,16 @@ func TestGetItemJSON(t *testing.T) {
 			output: []byte(`"potato"`),
 			status: nil,
 		}, {
+			input:  []byte(`{"numbers":[4,8,15,16,23,42,63]}`),
+			target: []string{"numbers", "3"},
+			output: []byte(`16`),
+			status: nil,
+		}, {
+			input:  []byte(`[["apple","apricot","acorn"],"banana",["chestnut","cookie"]]`),
+			target: []string{"0", "1"},
+			output: []byte(`"apricot"`),
+			status: nil,
+		}, {
 			input:  []byte(`{"params":{"data":"potato"}}`),
 			target: []string{"bad", "address"},
 			output: []byte(""),
