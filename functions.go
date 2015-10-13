@@ -48,7 +48,7 @@ func GetItem(data interface{}, target []string) (interface{}, error) {
 			return dataSafe[target[0]], nil
 		}
 	} else {
-		return nil, errors.New("bad address")
+		return nil, fmt.Errorf("bad address - %s", target)
 	}
 }
 

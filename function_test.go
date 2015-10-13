@@ -1,43 +1,43 @@
 package cliTricks
 
 import (
-"fmt"
-"reflect"
-	"testing"
-	"github.com/stretchr/testify/assert"
 	"encoding/json"
-	)
+	"errors"
+	"fmt"
+	"github.com/stretchr/testify/assert"
+	"reflect"
+	"testing"
+)
 
 func TestBreakupStringArray(t *testing.T) {
-	testData := []struct{
-		input string
+	testData := []struct {
+		input  string
 		output []string
 	}{
 		{
-			input: "apple,banana,cherry",
-			output: []string{"apple","banana", "cherry"},
-		},{
-			input: "Dog, Eagle, Fox",
+			input:  "apple,banana,cherry",
+			output: []string{"apple", "banana", "cherry"},
+		}, {
+			input:  "Dog, Eagle, Fox",
 			output: []string{"Dog", "Eagle", "Fox"},
-		},{
-			input: "[Green Beans][Hot Tamales][Ice Cream]",
+		}, {
+			input:  "[Green Beans][Hot Tamales][Ice Cream]",
 			output: []string{"Green Beans", "Hot Tamales", "Ice Cream"},
-		},{
-			input: "[JellyBean],[KitKat],[Marshmallow]",
+		}, {
+			input:  "[JellyBean],[KitKat],[Marshmallow]",
 			output: []string{"JellyBean", "KitKat", "Marshmallow"},
-		},{
-			input: "[\"Nutella\"],[\"Oatmeal\"],[\"Pie\"]",
+		}, {
+			input:  "[\"Nutella\"],[\"Oatmeal\"],[\"Pie\"]",
 			output: []string{"Nutella", "Oatmeal", "Pie"},
 		},
 	}
 
 	for _, oneTest := range testData {
-			assert.Equal(t, oneTest.output, BreakupStringArray(oneTest.input), "BreakupStringArray returned non-expected results")
+		assert.Equal(t, oneTest.output, BreakupStringArray(oneTest.input), "BreakupStringArray returned non-expected results")
 	}
 }
 
-// OMG GetItem works. Kinda. A bit. w/e.
-func ExampleGetItem(){
+func ExampleGetItem() {
 	testBytes := []byte(`{"Everything":"Awesome","Team":{"Everything":"Cool"}}`)
 	var testData interface{}
 	err := json.Unmarshal(testBytes, &testData)
@@ -55,7 +55,78 @@ func ExampleGetItem(){
 	// Cool
 }
 
-func ExampleGetInt(){
+// func TestGetInt(t *testing.T) {
+// 	testData := []struct{
+// 		input interface{}
+// 		target []string
+// 		output int
+// 	}{
+// 		{
+// 			input: map[string]interface{}{
+// 						"params": map[string]float64{
+// 							"data": 63,
+// 					},
+// 			},
+// 			target: []string{"params", "data",},
+// 			output: 63,
+// 		},
+// 	}
+
+// 	for _, oneTest := range testData {
+// 		result, err := GetInt(oneTest.input, oneTest.target)
+// 		assert.Equal(t, oneTest.output, result)
+// 		assert.NoError(t, err)
+
+// 		result2, err := GetItem(oneTest.input, []string{"params"})
+// 		fmt.Println(oneTest.input)
+// 		fmt.Println(oneTest.output)
+// 		fmt.Println(result2)
+// 	}
+// }
+
+func TestGetIntJSON(t *testing.T) {
+	testData := []struct {
+		input  []byte
+		target []string
+		output int
+		status error
+	}{
+		{
+			input:  []byte(`{"params":{"data":63}}`),
+			target: []string{"params", "data"},
+			output: 63,
+			status: nil,
+		}, {
+			// we always round down
+			input:  []byte(`{"params":{"data":63.9}}`),
+			target: []string{"params", "data"},
+			output: 63,
+			status: nil,
+		}, {
+			input:  []byte(`{"params":{"data":"potato"}}`),
+			target: []string{"params", "data"},
+			output: -1,
+			status: errors.New("got non-float item - potato"),
+		}, {
+			input:  []byte(`{"params":{"data":"potato"}}`),
+			target: []string{"bad", "address"},
+			output: -1,
+			status: errors.New("bad item - bad address - [address]"),
+		},
+	}
+
+	for _, oneTest := range testData {
+		var testData interface{}
+		err := json.Unmarshal(oneTest.input, &testData)
+		assert.Nil(t, err, "Problems unmarshaling the input")
+
+		result, err := GetInt(testData, oneTest.target)
+		assert.Equal(t, oneTest.output, result)
+		assert.Equal(t, oneTest.status, err)
+	}
+}
+
+func ExampleGetInt() {
 	testBytes := []byte(`{"Everything":"Awesome","Team":{"Everything":"Cool", "Solution": 63}}`)
 	var testData interface{}
 	err := json.Unmarshal(testBytes, &testData)
@@ -75,31 +146,3 @@ func ExampleGetInt(){
 	// 63
 	// int
 }
-
-/*
-func TestGetInt(t *testing.T) {
-	testData := []struct{
-		input interface{}
-		target []string
-		output int
-	}{
-		{
-			input: interface{}{
-					map[string]interface{}{
-						"params": map[string]int{
-							"data":63,
-					},
-				},
-			},
-			target: []string{"params", "data",},
-			output: 63,
-		},
-	}
-
-	for _, oneTest := range testData {
-		result, err := GetInt(oneTest.input, oneTest.target)
-		assert.Equal(t, oneTest.output, result)
-		assert.NoError(t, err)
-	}
-}
-*/
