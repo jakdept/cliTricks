@@ -126,6 +126,49 @@ func TestGetIntJSON(t *testing.T) {
 	}
 }
 
+func TestGetItemJSON(t *testing.T) {
+	testData := []struct {
+		input  []byte
+		target []string
+		output []byte
+		status error
+	}{
+		{
+			input:  []byte(`{"params":{"data":63}}`),
+			target: []string{"params", "data"},
+			output: []byte(`63`),
+			status: nil,
+		}, {
+			// we always round down
+			input:  []byte(`{"params":{"data":63.9}}`),
+			target: []string{"params", "data"},
+			output: []byte(`63.9`),
+			status: nil,
+		}, {
+			input:  []byte(`{"params":{"data":"potato"}}`),
+			target: []string{"params", "data"},
+			output: []byte(`"potato"`),
+			status: nil,
+		}, {
+			input:  []byte(`{"params":{"data":"potato"}}`),
+			target: []string{"bad", "address"},
+			output: []byte(""),
+			status: errors.New("bad address - [address]"),
+		},
+	}
+
+	for _, oneTest := range testData {
+		var inputData, outputData interface{}
+		err := json.Unmarshal(oneTest.input, &inputData)
+		assert.Nil(t, err, "Problems unmarshaling the input")
+		err = json.Unmarshal(oneTest.output, &outputData)
+
+		result, err := GetItem(inputData, oneTest.target)
+		assert.Equal(t, outputData, result)
+		assert.Equal(t, oneTest.status, err)
+	}
+}
+
 func ExampleGetInt() {
 	testBytes := []byte(`{"Everything":"Awesome","Team":{"Everything":"Cool", "Solution": 63}}`)
 	var testData interface{}
