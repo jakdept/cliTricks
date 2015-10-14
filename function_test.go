@@ -29,9 +29,9 @@ func TestBreakupArray(t *testing.T) {
 		}, {
 			input:  "[\"Nutella\"],[\"Oatmeal\"],[\"Pie\"]",
 			output: []interface{}{"Nutella", "Oatmeal", "Pie"},
-		},{
+		}, {
 			input:  "apple,banana,cherry,4,5",
-			output: []interface{}{"apple", "banana", "cherry",4,5},
+			output: []interface{}{"apple", "banana", "cherry", 4, 5},
 		},
 	}
 
@@ -192,49 +192,49 @@ func TestSetItemJSON(t *testing.T) {
 			input:  []byte(`{"params":{"data":63}}`),
 			target: []interface{}{"params", "data"},
 			newVal: []byte("63"),
-			output:  []byte(`{"params":{"data":63}}`),
+			output: []byte(`{"params":{"data":63}}`),
 			status: nil,
 		}, {
 			input:  []byte(`{"params":{"data":42}}`),
 			target: []interface{}{"params", "data"},
 			newVal: []byte(`63.9`),
-			output:  []byte(`{"params":{"data":63}}`),
+			output: []byte(`{"params":{"data":63}}`),
 			status: nil,
 		}, {
 			input:  []byte(`{"params":{"data":"potato"}}`),
 			target: []interface{}{"params", "data"},
 			newVal: []byte(`"banana"`),
-			output:  []byte(`{"params":{"data":"banana"}}`),
+			output: []byte(`{"params":{"data":"banana"}}`),
 			status: nil,
 		}, {
 			input:  []byte(`{"params":{"data":"potato"}}`),
 			target: []interface{}{"params", "magic"},
 			newVal: []byte(`"banana"`),
-			output:  []byte(`{"params":{"data":"banana","magic":"banana"}}`),
+			output: []byte(`{"params":{"data":"banana","magic":"banana"}}`),
 			status: nil,
 		}, {
 			input:  []byte(`{"numbers":[4,8,15,16,23,42]}`),
 			target: []interface{}{"numbers", 6},
 			newVal: []byte(`63`),
-			output:  []byte(`{"numbers":[4,8,15,16,23,42,63]}`),
+			output: []byte(`{"numbers":[4,8,15,16,23,42,63]}`),
 			status: nil,
 		}, {
 			input:  []byte(`[["apple","apricot"],"banana",["chestnut","cookie"]]`),
 			target: []interface{}{"0", "2"},
 			newVal: []byte(`"acorn"`),
-			output:  []byte(`[["apple","apricot","acorn"],"banana",["chestnut","cookie"]]`),
+			output: []byte(`[["apple","apricot","acorn"],"banana",["chestnut","cookie"]]`),
 			status: nil,
 		}, {
 			input:  []byte(`[["apple","acorn"],"banana",["chestnut","cookie"]]`),
 			target: []interface{}{"0", "1"},
 			newVal: []byte(`"apricot"`),
-			output:  []byte(`[["apple","apricot","acorn"],"banana",["chestnut","cookie"]]`),
+			output: []byte(`[["apple","apricot","acorn"],"banana",["chestnut","cookie"]]`),
 			status: nil,
 		}, {
 			input:  []byte(`{"params":{"data":"potato"}}`),
 			target: []interface{}{"bad", "address"},
 			newVal: []byte(""),
-			output:  []byte(`{"params":{"data":"potato"}}`),
+			output: []byte(`{"params":{"data":"potato"}}`),
 			status: errors.New("bad address - [address]"),
 		},
 	}
@@ -249,7 +249,7 @@ func TestSetItemJSON(t *testing.T) {
 		assert.Nil(t, err, "Problems unmarshaling the output")
 
 		err = SetItem(&inputData, oneTest.target, newData)
-		assert.Equal(t, outputData, inputData, "test # %d - [%q]", id,oneTest.input)
+		assert.Equal(t, outputData, inputData, "test # %d - [%q]", id, oneTest.input)
 		assert.Equal(t, oneTest.status, err, "test # %d - [%q]", id, oneTest.input)
 	}
 }

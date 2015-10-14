@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func BreakupArray(input string) ([]interface{}) {
+func BreakupArray(input string) []interface{} {
 	if strings.HasPrefix(input, "[") && strings.HasSuffix(input, "]") {
 		input = strings.TrimPrefix(input, "[")
 		input = strings.TrimSuffix(input, "]")
@@ -51,9 +51,9 @@ func GetInt(data interface{}, target []interface{}) (int, error) {
 
 func GetItem(data interface{}, target []interface{}) (interface{}, error) {
 	if targetInt, ok := target[0].(int); ok {
-		if dataSafe, ok := data.([]interface{}); !ok{
+		if dataSafe, ok := data.([]interface{}); !ok {
 			return nil, errors.New("got array address for non-array")
-		} else if targetInt < 0 || targetInt > len(dataSafe) - 1 {
+		} else if targetInt < 0 || targetInt > len(dataSafe)-1 {
 			return nil, errors.New("non-existant array position")
 		} else {
 			if len(target) > 1 {
@@ -79,33 +79,33 @@ func GetItem(data interface{}, target []interface{}) (interface{}, error) {
 	}
 }
 
-func SetItem(data interface{}, target []interface{}, value interface{}) (error) {
+func SetItem(data *interface{}, target []interface{}, value interface{}) error {
 	if targetInt, ok := target[0].(int); ok {
-		if dataSafe, ok := data.([]interface{}); !ok{
+		if dataSafe, ok := data.(*[]interface{}); !ok {
 			return fmt.Errorf("got array address [%d] for non-array", targetInt)
 		} else if targetInt < 0 {
 			return errors.New("non-existant (negative) array position")
 		} else {
 			if len(target) > 1 {
-				return SetItem(dataSafe[targetInt], target[1:], value)
+				return SetItem(&(*dataSafe[targetInt]), target[1:], value)
 			} else {
 				if targetInt < len(dataSafe) {
-					dataSafe[targetInt] = value
+					*dataSafe[targetInt] = value
 					return nil
 				} else {
-					dataSafe = append(dataSafe, value)
+					*dataSafe = append(dataSafe, value)
 					return nil
 				}
 			}
 		}
 	} else if targetString, ok := target[0].(string); ok {
-		if dataSafe, ok := data.(map[string]interface{}); !ok {
+		if dataSafe, ok := data.(*map[string]interface{}); !ok {
 			return fmt.Errorf("got map address [%q] for non-map", targetString)
 		} else {
 			if len(target) > 1 {
-				return SetItem(dataSafe[targetString], target[1:], value)
+				return SetItem(*dataSafe[targetString], target[1:], value)
 			} else {
-				dataSafe[targetString] = value
+				*dataSafe[targetString] = value
 				return nil
 			}
 		}
