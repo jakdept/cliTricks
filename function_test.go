@@ -180,78 +180,76 @@ func TestGetItemJSON(t *testing.T) {
 	}
 }
 
-// func TestSetItemJSON(t *testing.T) {
-// 	testData := []struct {
-// 		input  []byte
-// 		target []string
-// 		newVal []byte
-// 		output []byte
-// 		status error
-// 	}{
-// 		{
-// 			input:  []byte(`{"params":{"data":63}}`),
-// 			target: []string{"params", "data"},
-// 			newVal: []byte("63"),
-// 			output:  []byte(`{"params":{"data":63}}`),
-// 			status: nil,
-// 		}, {
-// 			// we always round down
-// 			input:  []byte(`{"params":{"data":42}}`),
-// 			target: []string{"params", "data"},
-// 			newVal: []byte(`63.9`),
-// 			output:  []byte(`{"params":{"data":63}}`),
-// 			status: nil,
-// 		}, {
-// 			input:  []byte(`{"params":{"data":"potato"}}`),
-// 			target: []string{"params", "data"},
-// 			newVal: []byte(`"banana"`),
-// 			output:  []byte(`{"params":{"data":"banana"}}`),
-// 			status: nil,
-// 		}, {
-// 			input:  []byte(`{"params":{"data":"potato"}}`),
-// 			target: []string{"params", "magic"},
-// 			newVal: []byte(`"banana"`),
-// 			output:  []byte(`{"params":{"data":"banana","magic":"banana"}}`),
-// 			status: nil,
-// 		}, {
-// 			input:  []byte(`{"numbers":[4,8,15,16,23,42]}`),
-// 			target: []string{"numbers", "6"},
-// 			newVal: []byte(`63`),
-// 			output:  []byte(`{"numbers":[4,8,15,16,23,42,63]}`),
-// 			status: nil,
-// 		}, {
-// 			input:  []byte(`[["apple","apricot"],"banana",["chestnut","cookie"]]`),
-// 			target: []string{"0", "2"},
-// 			newVal: []byte(`"acorn"`),
-// 			output:  []byte(`[["apple","apricot","acorn"],"banana",["chestnut","cookie"]]`),
-// 			status: nil,
-// 		}, {
-// 			input:  []byte(`[["apple","acorn"],"banana",["chestnut","cookie"]]`),
-// 			target: []string{"0", "1"},
-// 			newVal: []byte(`"apricot"`),
-// 			output:  []byte(`[["apple","apricot","acorn"],"banana",["chestnut","cookie"]]`),
-// 			status: nil,
-// 		}, {
-// 			input:  []byte(`{"params":{"data":"potato"}}`),
-// 			target: []string{"bad", "address"},
-// 			newVal: []byte(""),
-// 			output:  []byte(`{"params":{"data":"potato"}}`),
-// 			status: errors.New("bad address - [address]"),
-// 		},
-// 	}
+func TestSetItemJSON(t *testing.T) {
+	testData := []struct {
+		input  []byte
+		target []interface{}
+		newVal []byte
+		output []byte
+		status error
+	}{
+		{
+			input:  []byte(`{"params":{"data":63}}`),
+			target: []interface{}{"params", "data"},
+			newVal: []byte("63"),
+			output:  []byte(`{"params":{"data":63}}`),
+			status: nil,
+		}, {
+			input:  []byte(`{"params":{"data":42}}`),
+			target: []interface{}{"params", "data"},
+			newVal: []byte(`63.9`),
+			output:  []byte(`{"params":{"data":63}}`),
+			status: nil,
+		}, {
+			input:  []byte(`{"params":{"data":"potato"}}`),
+			target: []interface{}{"params", "data"},
+			newVal: []byte(`"banana"`),
+			output:  []byte(`{"params":{"data":"banana"}}`),
+			status: nil,
+		}, {
+			input:  []byte(`{"params":{"data":"potato"}}`),
+			target: []interface{}{"params", "magic"},
+			newVal: []byte(`"banana"`),
+			output:  []byte(`{"params":{"data":"banana","magic":"banana"}}`),
+			status: nil,
+		}, {
+			input:  []byte(`{"numbers":[4,8,15,16,23,42]}`),
+			target: []interface{}{"numbers", 6},
+			newVal: []byte(`63`),
+			output:  []byte(`{"numbers":[4,8,15,16,23,42,63]}`),
+			status: nil,
+		}, {
+			input:  []byte(`[["apple","apricot"],"banana",["chestnut","cookie"]]`),
+			target: []interface{}{"0", "2"},
+			newVal: []byte(`"acorn"`),
+			output:  []byte(`[["apple","apricot","acorn"],"banana",["chestnut","cookie"]]`),
+			status: nil,
+		}, {
+			input:  []byte(`[["apple","acorn"],"banana",["chestnut","cookie"]]`),
+			target: []interface{}{"0", "1"},
+			newVal: []byte(`"apricot"`),
+			output:  []byte(`[["apple","apricot","acorn"],"banana",["chestnut","cookie"]]`),
+			status: nil,
+		}, {
+			input:  []byte(`{"params":{"data":"potato"}}`),
+			target: []interface{}{"bad", "address"},
+			newVal: []byte(""),
+			output:  []byte(`{"params":{"data":"potato"}}`),
+			status: errors.New("bad address - [address]"),
+		},
+	}
 
-// 	for _, oneTest := range testData {
-// 		var inputData, newData, outputData interface{}
-// 		err := json.Unmarshal(oneTest.input, &inputData)
-// 		assert.Nil(t, err, "Problems unmarshaling the input")
-// 		err = json.Unmarshal(oneTest.newVal, &newData)
-// 		assert.Nil(t, err, "Problems unmarshaling the newData")
-// 		err = json.Unmarshal(oneTest.output, &outputData)
-// 		assert.Nil(t, err, "Problems unmarshaling the output")
+	for id, oneTest := range testData {
+		var inputData, newData, outputData interface{}
+		err := json.Unmarshal(oneTest.input, &inputData)
+		assert.Nil(t, err, "Problems unmarshaling the input")
+		err = json.Unmarshal(oneTest.newVal, &newData)
+		assert.Nil(t, err, "Problems unmarshaling the newData")
+		err = json.Unmarshal(oneTest.output, &outputData)
+		assert.Nil(t, err, "Problems unmarshaling the output")
 
-// 		err = SetItem(&inputData, newData, oneTest.target)
-// 		assert.Equal(t, outputData, inputData)
-// 		assert.Equal(t, oneTest.status, err)
-// 	}
-// }
-
+		err = SetItem(&inputData, oneTest.target, newData)
+		assert.Equal(t, outputData, inputData, "test # %d - [%q]", id,oneTest.input)
+		assert.Equal(t, oneTest.status, err, "test # %d - [%q]", id, oneTest.input)
+	}
+}
