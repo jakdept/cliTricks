@@ -8,8 +8,9 @@ import (
 )
 
 var (
-	ErrCantFind     = fmt.Errorf("can't find")
-	ErrInvalidIndex = fmt.Errorf("invalid index")
+	errCantFindMap     = fmt.Errorf("can't find")
+	errInvalidIndex = fmt.Errorf("invalid index")
+	errNonMapInput = fmt.Errorf("invalid data input (not map or string)")
 )
 
 type typeError string
@@ -91,7 +92,7 @@ func GetItem(data interface{}, target []interface{}) (interface{}, error) {
 
 func SetItem(data interface{}, t []interface{}, val interface{}) (err error) {
 	if len(t) < 1 {
-		panic("wut")
+		return errNonMapInput
 	}
 	nextT := t[1:]
 	switch d := data.(type) {
@@ -103,7 +104,7 @@ func SetItem(data interface{}, t []interface{}, val interface{}) (err error) {
 		if len(nextT) > 0 {
 			nextData, ok := d[tt]
 			if !ok {
-				return ErrCantFind
+				return errCantFindMap
 			}
 			return SetItem(nextData, nextT, val)
 		}
@@ -116,14 +117,14 @@ func SetItem(data interface{}, t []interface{}, val interface{}) (err error) {
 		}
 		if len(nextT) > 0 {
 			if tt < 0 || tt >= len(d) {
-				return ErrInvalidIndex
+				return errInvalidIndex
 			}
 			return SetItem(d[tt], nextT, val)
 		}
 		d[tt] = val
 		return
 	default:
-		panic("wut")
+		return errNonMapInput
 	}
 	return
 }
