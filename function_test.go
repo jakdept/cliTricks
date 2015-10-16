@@ -230,7 +230,7 @@ func TestSetItemJSON(t *testing.T) {
 			target: []interface{}{"bad", "address"},
 			newVal: []byte("null"),
 			output: []byte(`{"params":{"data":"potato"}}`),
-			status: errors.New("bad address - [address]"),
+			status: errors.New("invalid map address"),
 		},
 	}
 
@@ -246,7 +246,7 @@ func TestSetItemJSON(t *testing.T) {
 
 		err = SetItem(data, oneTest.target, newData)
 		assert.Equal(t, expected, data, "test # %d - [%q]", id, oneTest.input)
-		// assert.Equal(t, oneTest.status, err, "test # %d - [%q]", id, oneTest.input)
+		assert.Equal(t, oneTest.status, err, "test # %d - [%q]", id, oneTest.input)
 	}
 }
 

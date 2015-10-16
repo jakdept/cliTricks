@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	errCantFindMap  = fmt.Errorf("can't find")
+	errCantFindMap  = fmt.Errorf("invalid map address")
 	errInvalidIndex = fmt.Errorf("invalid index")
 	errNonMapInput  = fmt.Errorf("invalid input (not map or string)")
 )
