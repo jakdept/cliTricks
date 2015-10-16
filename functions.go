@@ -91,20 +91,21 @@ func GetItem(data interface{}, target []interface{}) (interface{}, error) {
 
 func SetItem(data interface{}, t []interface{}, val interface{}) (err error) {
 	if len(t) < 1 {
-		return errNonMapInput
+		panic("wut")
 	}
+	nextT := t[1:]
 	switch d := data.(type) {
 	case map[string]interface{}:
 		tt, ok := t[0].(string)
 		if !ok {
 			return typeError("string")
 		}
-		if len(t[1:]) > 0 {
+		if len(nextT) > 0 {
 			nextData, ok := d[tt]
 			if !ok {
 				return errCantFindMap
 			}
-			return SetItem(nextData, t[1:], val)
+			return SetItem(nextData, nextT, val)
 		}
 		d[tt] = val
 		return
@@ -113,16 +114,54 @@ func SetItem(data interface{}, t []interface{}, val interface{}) (err error) {
 		if !ok {
 			return typeError("int")
 		}
-		if len(t[1:]) > 0 {
+		if len(nextT) > 0 {
 			if tt < 0 || tt >= len(d) {
 				return errInvalidIndex
 			}
-			return SetItem(d[tt], t[1:], val)
+			return SetItem(d[tt], nextT, val)
 		}
 		d[tt] = val
 		return
 	default:
-		return errNonMapInput
+		panic("wut")
 	}
 	return
 }
+
+// func SetItem(data interface{}, t []interface{}, val interface{}) (err error) {
+// 	if len(t) < 1 {
+// 		return errNonMapInput
+// 	}
+// 	switch d := data.(type) {
+// 	case map[string]interface{}:
+// 		tt, ok := t[0].(string)
+// 		if !ok {
+// 			return typeError("string")
+// 		}
+// 		if len(t[1:]) > 0 {
+// 			nextData, ok := d[tt]
+// 			if !ok {
+// 				return errCantFindMap
+// 			}
+// 			return SetItem(nextData, t[1:], val)
+// 		}
+// 		d[tt] = val
+// 		return
+// 	case []interface{}:
+// 		tt, ok := t[0].(int)
+// 		if !ok {
+// 			return typeError("int")
+// 		}
+// 		if len(t[1:]) > 0 {
+// 			if tt < 0 || tt >= len(d) {
+// 				return errInvalidIndex
+// 			}
+// 			return SetItem(d[tt], t[:1], val)
+// 		}
+// 		d[tt] = val
+// 		return
+// 	default:
+// 		return errNonMapInput
+// 	}
+// 	return
+// }

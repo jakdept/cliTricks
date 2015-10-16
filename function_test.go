@@ -213,25 +213,25 @@ func TestSetItemJSON(t *testing.T) {
 			newVal: []byte(`"banana"`),
 			output: []byte(`{"params":{"data":"potato","magic":"banana"}}`),
 			status: nil,
-			// }, {
-			// 	input:  []byte(`{"numbers":[4,8,15,16,23,42]}`),
-			// 	target: []interface{}{"numbers", 6},
-			// 	newVal: []byte(`63`),
-			// 	output: []byte(`{"numbers":[4,8,15,16,23,42,63]}`),
-			// 	status: nil,
-			// }, {
-			// 	input:  []byte(`{"items":[["apple","apricot"],"banana",["chestnut","cookie"]]}`),
-			// 	target: []interface{}{"items","0", "2"},
-			// 	newVal: []byte(`"acorn"`),
-			// 	output: []byte(`{"items":[["apple","apricot","acorn"],"banana",["chestnut","cookie"]]}`),
-			// 	status: nil,
-			// }, {
-			// 	input:  []byte(`{"items":[["apple","acorn"],"banana",["chestnut","cookie"]]}`),
-			// 	target: []interface{}{"items","0", "1"},
-			// 	newVal: []byte(`"apricot"`),
-			// 	output: []byte(`{"items":[["apple","apricot","acorn"],"banana",["chestnut","cookie"]]}`),
-			// 	status: nil,
 		}, {
+			input:  []byte(`{"numbers":[4,8,15,16,23,42]}`),
+			target: []interface{}{"numbers", 4},
+			newVal: []byte(`63`),
+			output: []byte(`{"numbers":[4,8,15,16,63,42]}`),
+			status: nil,
+		}, {
+			input:  []byte(`{"items":[["apple","apricot"],"banana",["chestnut","cookie"]]}`),
+			target: []interface{}{"items", 0, 1},
+			newVal: []byte(`"acorn"`),
+			output: []byte(`{"items":[["apple","acorn"],"banana",["chestnut","cookie"]]}`),
+			status: nil,
+		}, {
+			// 	input:  []byte(`{"items":[["apple","acorn"],"banana",["chestnut","cookie"]]}`),
+			// 	target: []interface{}{"items", 0, 2},
+			// 	newVal: []byte(`"apricot"`),
+			// 	output: []byte(`{"items":[["apple","acorn", "apricot"],"banana",["chestnut","cookie"]]}`),
+			// 	status: nil,
+			// }, {
 			input:  []byte(`{"params":{"data":"potato"}}`),
 			target: []interface{}{"bad", "address"},
 			newVal: []byte("null"),
@@ -291,4 +291,10 @@ func ExampleSetItem() {
 		fmt.Fprintln(os.Stderr, "error:", err)
 	}
 	fmt.Println(res)
+
+	// Output:
+	// map[field2:[[1 2] [3 4 5]] field1:map[field1.1:novalue field1.2:map[field1.2.1:1 field1.2.2:something]]]
+	// map[field1:map[field1.1:hello world field1.2:map[field1.2.1:2 field1.2.2:3.14]] field2:[[1 48879] 12345]]
+
+
 }
