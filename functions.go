@@ -89,7 +89,7 @@ func GetItem(data interface{}, target []interface{}) (interface{}, error) {
 	}
 }
 
-func setItem(data interface{}, t []interface{}, val interface{}) (err error) {
+func SetItem(data interface{}, t []interface{}, val interface{}) (err error) {
 	if len(t) < 1 {
 		panic("wut")
 	}
@@ -105,7 +105,7 @@ func setItem(data interface{}, t []interface{}, val interface{}) (err error) {
 			if !ok {
 				return ErrCantFind
 			}
-			return setItem(nextData, nextT, val)
+			return SetItem(nextData, nextT, val)
 		}
 		d[tt] = val
 		return
@@ -118,7 +118,7 @@ func setItem(data interface{}, t []interface{}, val interface{}) (err error) {
 			if tt < 0 || tt >= len(d) {
 				return ErrInvalidIndex
 			}
-			return setItem(d[tt], nextT, val)
+			return SetItem(d[tt], nextT, val)
 		}
 		d[tt] = val
 		return

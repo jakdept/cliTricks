@@ -250,7 +250,7 @@ func TestSetItemJSON(t *testing.T) {
 		err = json.Unmarshal(oneTest.output, &expected)
 		assert.Nil(t, err, "Problems unmarshaling the output")
 
-		err = setItem(data, oneTest.target, newData)
+		err = SetItem(data, oneTest.target, newData)
 		assert.Equal(t, expected, data, "test # %d - [%q]", id, oneTest.input)
 		// assert.Equal(t, oneTest.status, err, "test # %d - [%q]", id, oneTest.input)
 	}
@@ -275,19 +275,19 @@ func ExampleSetItem() {
 		os.Exit(1)
 	}
 	fmt.Println(res)
-	if err := setItem(res, []interface{}{"field1", "field1.1"}, "hello world"); err != nil {
+	if err := SetItem(res, []interface{}{"field1", "field1.1"}, "hello world"); err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
 	}
-	if err := setItem(res, []interface{}{"field1", "field1.2", "field1.2.1"}, 2); err != nil {
+	if err := SetItem(res, []interface{}{"field1", "field1.2", "field1.2.1"}, 2); err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
 	}
-	if err := setItem(res, []interface{}{"field1", "field1.2", "field1.2.2"}, 3.14); err != nil {
+	if err := SetItem(res, []interface{}{"field1", "field1.2", "field1.2.2"}, 3.14); err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
 	}
-	if err := setItem(res, []interface{}{"field2", 0, 1}, 0xbeef); err != nil {
+	if err := SetItem(res, []interface{}{"field2", 0, 1}, 0xbeef); err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
 	}
-	if err := setItem(res, []interface{}{"field2", 1}, 12345); err != nil {
+	if err := SetItem(res, []interface{}{"field2", 1}, 12345); err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
 	}
 	fmt.Println(res)
