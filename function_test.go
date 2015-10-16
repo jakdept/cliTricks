@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"github.com/stretchr/testify/assert"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -213,24 +213,24 @@ func TestSetItemJSON(t *testing.T) {
 			newVal: []byte(`"banana"`),
 			output: []byte(`{"params":{"data":"potato","magic":"banana"}}`),
 			status: nil,
-		// }, {
-		// 	input:  []byte(`{"numbers":[4,8,15,16,23,42]}`),
-		// 	target: []interface{}{"numbers", 6},
-		// 	newVal: []byte(`63`),
-		// 	output: []byte(`{"numbers":[4,8,15,16,23,42,63]}`),
-		// 	status: nil,
-		// }, {
-		// 	input:  []byte(`{"items":[["apple","apricot"],"banana",["chestnut","cookie"]]}`),
-		// 	target: []interface{}{"items","0", "2"},
-		// 	newVal: []byte(`"acorn"`),
-		// 	output: []byte(`{"items":[["apple","apricot","acorn"],"banana",["chestnut","cookie"]]}`),
-		// 	status: nil,
-		// }, {
-		// 	input:  []byte(`{"items":[["apple","acorn"],"banana",["chestnut","cookie"]]}`),
-		// 	target: []interface{}{"items","0", "1"},
-		// 	newVal: []byte(`"apricot"`),
-		// 	output: []byte(`{"items":[["apple","apricot","acorn"],"banana",["chestnut","cookie"]]}`),
-		// 	status: nil,
+			// }, {
+			// 	input:  []byte(`{"numbers":[4,8,15,16,23,42]}`),
+			// 	target: []interface{}{"numbers", 6},
+			// 	newVal: []byte(`63`),
+			// 	output: []byte(`{"numbers":[4,8,15,16,23,42,63]}`),
+			// 	status: nil,
+			// }, {
+			// 	input:  []byte(`{"items":[["apple","apricot"],"banana",["chestnut","cookie"]]}`),
+			// 	target: []interface{}{"items","0", "2"},
+			// 	newVal: []byte(`"acorn"`),
+			// 	output: []byte(`{"items":[["apple","apricot","acorn"],"banana",["chestnut","cookie"]]}`),
+			// 	status: nil,
+			// }, {
+			// 	input:  []byte(`{"items":[["apple","acorn"],"banana",["chestnut","cookie"]]}`),
+			// 	target: []interface{}{"items","0", "1"},
+			// 	newVal: []byte(`"apricot"`),
+			// 	output: []byte(`{"items":[["apple","apricot","acorn"],"banana",["chestnut","cookie"]]}`),
+			// 	status: nil,
 		}, {
 			input:  []byte(`{"params":{"data":"potato"}}`),
 			target: []interface{}{"bad", "address"},
