@@ -7,6 +7,16 @@ import (
 	"strings"
 )
 
+var (
+	ErrCantFind     = fmt.Errorf("can't find")
+	ErrInvalidIndex = fmt.Errorf("invalid index")
+)
+
+type typeError string
+
+func (e typeError) Error() string { return fmt.Sprintf("wrong data type. a %s was expected", e) }
+
+
 func BreakupArray(input string) []interface{} {
 	if strings.HasPrefix(input, "[") && strings.HasSuffix(input, "]") {
 		input = strings.TrimPrefix(input, "[")
@@ -79,37 +89,41 @@ func GetItem(data interface{}, target []interface{}) (interface{}, error) {
 	}
 }
 
-func SetItem(data *interface{}, target []interface{}, value interface{}) error {
-	if targetInt, ok := target[0].(int); ok {
-		if dataSafe, ok := data.(*[]interface{}); !ok {
-			return fmt.Errorf("got array address [%d] for non-array", targetInt)
-		} else if targetInt < 0 {
-			return errors.New("non-existant (negative) array position")
-		} else {
-			if len(target) > 1 {
-				return SetItem(&(*dataSafe[targetInt]), target[1:], value)
-			} else {
-				if targetInt < len(dataSafe) {
-					*dataSafe[targetInt] = value
-					return nil
-				} else {
-					*dataSafe = append(dataSafe, value)
-					return nil
-				}
-			}
-		}
-	} else if targetString, ok := target[0].(string); ok {
-		if dataSafe, ok := data.(*map[string]interface{}); !ok {
-			return fmt.Errorf("got map address [%q] for non-map", targetString)
-		} else {
-			if len(target) > 1 {
-				return SetItem(*dataSafe[targetString], target[1:], value)
-			} else {
-				*dataSafe[targetString] = value
-				return nil
-			}
-		}
-	} else {
-		return fmt.Errorf("bad address - %s", target)
+func setItem(data interface{}, t []interface{}, val interface{}) (err error) {
+	if len(t) < 1 {
+		panic("wut")
 	}
+	nextT := t[1:]
+	switch d := data.(type) {
+	case map[string]interface{}:
+		tt, ok := t[0].(string)
+		if !ok {
+			return typeError("string")
+		}
+		if len(nextT) > 0 {
+			nextData, ok := d[tt]
+			if !ok {
+				return ErrCantFind
+			}
+			return setItem(nextData, nextT, val)
+		}
+		d[tt] = val
+		return
+	case []interface{}:
+		tt, ok := t[0].(int)
+		if !ok {
+			return typeError("int")
+		}
+		if len(nextT) > 0 {
+			if tt < 0 || tt >= len(d) {
+				return ErrInvalidIndex
+			}
+			return setItem(d[tt], nextT, val)
+		}
+		d[tt] = val
+		return
+	default:
+		panic("wut")
+	}
+	return
 }
