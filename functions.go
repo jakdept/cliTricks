@@ -10,7 +10,7 @@ import (
 var (
 	errCantFindMap  = fmt.Errorf("can't find")
 	errInvalidIndex = fmt.Errorf("invalid index")
-	errNonMapInput  = fmt.Errorf("invalid data input (not map or string)")
+	errNonMapInput  = fmt.Errorf("invalid input (not map or string)")
 )
 
 type typeError string
@@ -91,21 +91,21 @@ func GetItem(data interface{}, target []interface{}) (interface{}, error) {
 
 func SetItem(data interface{}, t []interface{}, val interface{}) (err error) {
 	if len(t) < 1 {
-		panic("wut")
+		return errNonMapInput
 	}
-	nextT := t[1:]
+	// t[1:] := t[1:]
 	switch d := data.(type) {
 	case map[string]interface{}:
 		tt, ok := t[0].(string)
 		if !ok {
 			return typeError("string")
 		}
-		if len(nextT) > 0 {
+		if len(t[1:]) > 0 {
 			nextData, ok := d[tt]
 			if !ok {
 				return errCantFindMap
 			}
-			return SetItem(nextData, nextT, val)
+			return SetItem(nextData, t[1:], val)
 		}
 		d[tt] = val
 		return
@@ -114,16 +114,16 @@ func SetItem(data interface{}, t []interface{}, val interface{}) (err error) {
 		if !ok {
 			return typeError("int")
 		}
-		if len(nextT) > 0 {
-			if tt < 0 || tt >= len(d) {
-				return errInvalidIndex
-			}
-			return SetItem(d[tt], nextT, val)
+		if tt < 0 || tt >= len(d) {
+			return errInvalidIndex
+		}
+		if len(t[1:]) > 0 {
+			return SetItem(d[tt], t[1:], val)
 		}
 		d[tt] = val
 		return
 	default:
-		panic("wut")
+		return errNonMapInput
 	}
 	return
 }

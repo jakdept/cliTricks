@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/stretchr/testify/assert"
-	"os"
+	// "os"
 	"reflect"
 	"testing"
 )
@@ -226,12 +226,6 @@ func TestSetItemJSON(t *testing.T) {
 			output: []byte(`{"items":[["apple","acorn"],"banana",["chestnut","cookie"]]}`),
 			status: nil,
 		}, {
-			// 	input:  []byte(`{"items":[["apple","acorn"],"banana",["chestnut","cookie"]]}`),
-			// 	target: []interface{}{"items", 0, 2},
-			// 	newVal: []byte(`"apricot"`),
-			// 	output: []byte(`{"items":[["apple","acorn", "apricot"],"banana",["chestnut","cookie"]]}`),
-			// 	status: nil,
-			// }, {
 			input:  []byte(`{"params":{"data":"potato"}}`),
 			target: []interface{}{"bad", "address"},
 			newVal: []byte("null"),
@@ -256,6 +250,7 @@ func TestSetItemJSON(t *testing.T) {
 	}
 }
 
+/*
 func ExampleSetItem() {
 	testData := []byte(`
 {
@@ -298,3 +293,4 @@ func ExampleSetItem() {
 
 
 }
+*/
