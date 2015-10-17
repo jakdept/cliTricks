@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/stretchr/testify/assert"
-	// "os"
+	"os"
 	"reflect"
 	"testing"
 )
@@ -250,8 +250,8 @@ func TestSetItemJSON(t *testing.T) {
 	}
 }
 
-/*
 func ExampleSetItem() {
+	var err error
 	testData := []byte(`
 {
 	"field1": {
@@ -269,7 +269,8 @@ func ExampleSetItem() {
 		fmt.Fprintln(os.Stderr, "can't unmarshal json:", err)
 		os.Exit(1)
 	}
-	fmt.Println(res)
+	testData, err = json.Marshal(res)
+	fmt.Println(string(testData))
 	if err := SetItem(res, []interface{}{"field1", "field1.1"}, "hello world"); err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
 	}
@@ -285,12 +286,12 @@ func ExampleSetItem() {
 	if err := SetItem(res, []interface{}{"field2", 1}, 12345); err != nil {
 		fmt.Fprintln(os.Stderr, "error:", err)
 	}
-	fmt.Println(res)
+	if testData, err = json.Marshal(res); err != nil {
+		fmt.Fprintln(os.Stderr, "error:", err)
+	}
+	fmt.Println(string(testData))
 
 	// Output:
-	// map[field2:[[1 2] [3 4 5]] field1:map[field1.1:novalue field1.2:map[field1.2.1:1 field1.2.2:something]]]
-	// map[field1:map[field1.1:hello world field1.2:map[field1.2.1:2 field1.2.2:3.14]] field2:[[1 48879] 12345]]
-
-
+	// {"field1":{"field1.1":"novalue","field1.2":{"field1.2.1":1,"field1.2.2":"something"}},"field2":[[1,2],[3,4,5]]}
+	// {"field1":{"field1.1":"hello world","field1.2":{"field1.2.1":2,"field1.2.2":3.14}},"field2":[[1,48879],12345]}
 }
-*/
