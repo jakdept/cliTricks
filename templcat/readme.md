@@ -76,3 +76,29 @@ $ cat fruits|templcat --templateFile fruit_template
   ]
 }
 ```
+
+This of course leaves you free to pretty it yourself.
+
+```bash
+⇒  cat fruits|templcat --templateFile fruit_template|prettycat
+{
+  "fruits": [
+    "apple",
+    "banana",
+    "cherry",
+    "date",
+    "eggplant"
+  ]
+}
+{
+  "fruits": [
+    "fig"
+  ]
+}
+{
+  "fruits": [
+    "grape",
+    "honeydew"
+  ]
+}
+```
