@@ -1,0 +1,5 @@
+{
+  "fruits":[{{range $index, $element := .}}
+	{{if $index}},{{end}}"{{.}}"{{end}}
+  ]
+}

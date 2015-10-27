@@ -11,21 +11,30 @@ import (
 	"text/template"
 )
 
-func TemplateBuild(in bufio.Reader, out io.Writer, t template.Template) (err error) {
+func TemplateBuild(in io.Reader, out io.Writer, t *template.Template) (err error) {
+	r := bufio.NewReader(in)
 	var parts []string
-	line, notDone, err := in.ReadLine()
-	if err != nil {
-		return err
-	}
-	for notDone {
-		parts = strings.Fields(string(line))
-		err = t.Execute(out, parts)
-		if err != nil {
-			return
+	line, err := r.ReadString('\n')
+	parts = strings.Fields(string(line))
+	// log.Print(line)
+	// log.Print(err)
+	for err == nil {
+		// log.Print(parts)
+		if len(parts) > 0 {
+			err = t.Execute(out, parts)
+			if err != nil {
+				return
+			}
+			out.Write([]byte("\n"))
 		}
-		line, notDone, err = in.ReadLine()
+		line, err = r.ReadString('\n')
+		parts = strings.Fields(string(line))
+		// log.Print(line)
 	}
-	return
+	if err == io.EOF {
+		return nil
+	}
+	return err
 }
 
 func main() {
@@ -36,14 +45,14 @@ func main() {
 	templateString := *templateStringPointer
 
 	if templateString == "" {
+		if *templateFile == "" {
+			log.Fatal("no template provided")
+		}
 		templateBytes, err := ioutil.ReadFile(*templateFile)
 		if err != nil {
 			log.Fatal("bad file to read template from")
 		}
 		templateString = string(templateBytes)
-	}
-	if templateString == "" {
-		log.Fatal("no template provided")
 	}
 
 	t := template.New("t")
@@ -51,6 +60,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	input := bufio.NewReader(os.Stdin)
-	log.Fatal(TemplateBuild(*input, os.Stdout, *template))
+	// input := bufio.NewReader(os.Stdin)
+	// output := bufio.NewWriter(os.Stdout)
+	if err := TemplateBuild(os.Stdin, os.Stdout, template); err != nil {
+		log.Print(err)
+	}
 }
