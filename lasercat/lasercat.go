@@ -2,16 +2,17 @@ package main
 
 import (
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
-	"strings"
-	"flag"
+	"log"
 	"os"
+	"strings"
 
 	"github.com/JackKnifed/cliTricks"
 )
 
-// Define a type named "intslice" as a slice of ints
+// Define a type named "stringSlice" as a slice of strings
 type stringSlice []string
 
 // Now, for our new type, implement the two methods of
@@ -27,9 +28,9 @@ func (s *stringSlice) Set(value string) error {
 	return nil
 }
 
-func jsonDecoder(in io.Reader, out io.Writer, t [][]interface{}, sep string) (err error) {
-	var requestData interface{}
-	var line string
+func jsonDecoder(in io.Reader, out io.Writer, t [][]interface{}) (err error) {
+	var requestData, item interface{}
+	var line []string
 
 	decoder := json.NewDecoder(in)
 
@@ -38,33 +39,20 @@ func jsonDecoder(in io.Reader, out io.Writer, t [][]interface{}, sep string) (er
 		if err != nil {
 			return err
 		}
-		line, err = cherryPick(requestData, t, sep)
-		if err != nil {
-			return err
+		for _, oneTarget := range t {
+			item, err = cliTricks.GetItem(requestData, oneTarget)
+			if err != nil {
+				return err
+			}
+			line = append(line, fmt.Sprintf("%s", item))
+
 		}
-		out.Write([]byte(line))
+		out.Write([]byte(strings.Join(line, " ")))
 	}
 
-	if err == io.EOF {
-		return nil
-	} else {
-		return err
-	}
-	return
-}
+	out.Write([]byte("\n"))
 
-func cherryPick(data interface{}, targets [][]interface{}, seperator string) (response string, err error) {
-	var onePart interface{}
-	var responseParts []string
-	for _, t := range targets {
-		onePart, err = cliTricks.GetItem(data, t)
-		if err != nil {
-			return "", err
-		}
-		responseParts = append(responseParts, fmt.Sprintf("%s", onePart))
-	}
-	response = strings.Join(responseParts, "\"")
-	return
+	return err
 }
 
 func main() {
@@ -78,5 +66,7 @@ func main() {
 		targets = append(targets, cliTricks.BreakupArray(oneTarget))
 	}
 
-	jsonDecoder(os.Stdin, os.Stdout, targets, "\t")
+	if err := jsonDecoder(os.Stdin, os.Stdout, targets); err != nil {
+		log.Print(err)
+	}
 }
