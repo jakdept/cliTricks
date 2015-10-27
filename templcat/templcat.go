@@ -55,6 +55,10 @@ func main() {
 		templateString = string(templateBytes)
 	}
 
+	if !strings.HasSuffix(templateString, "\n") {
+		templateString = templateString + "\n"
+	}
+
 	t := template.New("t")
 	template, err := t.Parse(templateString)
 	if err != nil {
