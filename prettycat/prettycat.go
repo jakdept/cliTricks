@@ -22,6 +22,7 @@ func PrettyPrint(in io.Reader, out io.Writer, indent string) (err error) {
 			return err
 		}
 		out.Write(writeBuf)
+		out.Write([]byte('\n'))
 	}
 	if err == io.EOF {
 		return nil
