@@ -33,6 +33,9 @@ func TestBreakupArray(t *testing.T) {
 		}, {
 			input:  "apple,banana,cherry,4,5",
 			output: []interface{}{"apple", "banana", "cherry", 4, 5},
+		},{
+			input:  "",
+			output: []interface{}{},
 		},
 	}
 

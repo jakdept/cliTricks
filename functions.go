@@ -18,6 +18,10 @@ type typeError string
 func (e typeError) Error() string { return fmt.Sprintf("wrong data type. a %s was expected", e) }
 
 func BreakupArray(input string) []interface{} {
+	// handle a bug when no input
+	if input == ""{
+		return []interface{}{}
+	}
 	if strings.HasPrefix(input, "[") && strings.HasSuffix(input, "]") {
 		input = strings.TrimPrefix(input, "[")
 		input = strings.TrimSuffix(input, "]")

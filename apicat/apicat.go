@@ -6,7 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	// "io/ioutil"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
@@ -27,7 +27,6 @@ type config struct {
 }
 
 func runRequest(c http.Client, b []byte, out io.Writer, opts config) (bool, error) {
-	var respBytes []byte
 	var respData interface{}
 
 	req, err := http.NewRequest("POST", opts.url, bytes.NewReader(b))
@@ -49,12 +48,10 @@ func runRequest(c http.Client, b []byte, out io.Writer, opts config) (bool, erro
 		return false, fmt.Errorf("got a non-200 response from the api server - %s", resp.StatusCode)
 	}
 
-	_, err = resp.Body.Read(respBytes)
+	respBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return false, fmt.Errorf("cannot read response - %v", err)
 	}
-
-	log.Print(respBytes)
 
 	err = resp.Body.Close()
 	if err != nil {
@@ -64,6 +61,11 @@ func runRequest(c http.Client, b []byte, out io.Writer, opts config) (bool, erro
 	_, err = out.Write(respBytes)
 	if err != nil {
 		return false, fmt.Errorf("cannot output response - %v", err)
+	}
+
+	// at this point we're just looking to see if the page was the last page
+	if len(opts.locCur) <= 0 || len(opts.locTotal) <= 0 {
+		return true, nil
 	}
 
 	err = json.Unmarshal(respBytes, respData)
@@ -104,6 +106,9 @@ func loopRequest(reqData interface{}, out io.Writer, opts config) error {
 		}
 
 		// finally increment
+		if len(opts.locCur) <= 0 {
+			return nil
+		}
 		reqPage, err := cliTricks.GetInt(reqData, opts.locCur)
 		if err != nil {
 			return fmt.Errorf("failed to get the current page number before increment - %v", err)
