@@ -6,7 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"io/ioutil"
+	// "io/ioutil"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
@@ -26,6 +26,98 @@ type config struct {
 	locInc   int
 }
 
+func runRequest(c http.Client, b []byte, out io.Writer, opts config) (bool, error) {
+	var respBytes []byte
+	var respData interface{}
+
+	req, err := http.NewRequest("POST", opts.url, bytes.NewReader(b))
+	if err != nil {
+		return false, fmt.Errorf("could not build request - %v", err)
+	}
+
+	if opts.username != "" && opts.password != "" {
+		req.SetBasicAuth(opts.username, opts.password)
+	}
+
+	resp, err := c.Do(req)
+	if err != nil {
+		return false, fmt.Errorf("cannot send request - %v", err)
+	}
+
+	// some cheap handling for the request
+	if resp.StatusCode != 200 {
+		return false, fmt.Errorf("got a non-200 response from the api server - %s", resp.StatusCode)
+	}
+
+	_, err = resp.Body.Read(respBytes)
+	if err != nil {
+		return false, fmt.Errorf("cannot read response - %v", err)
+	}
+
+	log.Print(respBytes)
+
+	err = resp.Body.Close()
+	if err != nil {
+		return false, fmt.Errorf("failed to close body - %v", err)
+	}
+
+	_, err = out.Write(respBytes)
+	if err != nil {
+		return false, fmt.Errorf("cannot output response - %v", err)
+	}
+
+	err = json.Unmarshal(respBytes, respData)
+	if err != nil {
+		return false, fmt.Errorf("response not json - %v", err)
+	}
+
+	curPage, err := cliTricks.GetInt(respData, opts.locCur)
+	if err != nil {
+		return false, fmt.Errorf("bad current page - %v", err)
+	}
+
+	totalPage, err := cliTricks.GetInt(respData, opts.locTotal)
+	if err != nil {
+		return false, fmt.Errorf("bad total page - %v", err)
+	}
+	return curPage >= totalPage, nil
+}
+
+func loopRequest(reqData interface{}, out io.Writer, opts config) error {
+	var done bool
+	// create client to be used
+	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
+	if err != nil {
+		return err
+	}
+	c := http.Client{Jar: jar}
+
+	for !done {
+		// build then run the request
+		reqBytes, err := json.Marshal(reqData)
+		if err != nil {
+			return fmt.Errorf("could not convert interface to bytes - %v", err)
+		}
+		done, err = runRequest(c, reqBytes, out, opts)
+		if err != nil {
+			return fmt.Errorf("got bad response from requests - %v", err)
+		}
+
+		// finally increment
+		reqPage, err := cliTricks.GetInt(reqData, opts.locCur)
+		if err != nil {
+			return fmt.Errorf("failed to get the current page number before increment - %v", err)
+		}
+		reqPage += opts.locInc
+		cliTricks.SetItem(reqData, opts.locCur, reqPage)
+		if err != nil {
+			return fmt.Errorf("failed to set the current page number after increment - %v", err)
+		}
+	}
+	return nil
+}
+
+/*
 func loopRequest(requestData interface{}, out io.Writer, opts config) (err error) {
 
 	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
@@ -144,6 +236,7 @@ func loopRequest(requestData interface{}, out io.Writer, opts config) (err error
 	}
 	return nil
 }
+*/
 
 func ApiJsonRoundTrip(in io.Reader, out io.Writer, opt config) (err error) {
 	var requestData interface{}
