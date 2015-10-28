@@ -25,7 +25,6 @@ func TemplateBuild(in io.Reader, out io.Writer, t *template.Template) (err error
 			if err != nil {
 				return
 			}
-			out.Write([]byte("\n"))
 		}
 		line, err = r.ReadString('\n')
 		parts = strings.Fields(string(line))
