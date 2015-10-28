@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"os"
 	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBreakupArray(t *testing.T) {
@@ -33,7 +34,7 @@ func TestBreakupArray(t *testing.T) {
 		}, {
 			input:  "apple,banana,cherry,4,5",
 			output: []interface{}{"apple", "banana", "cherry", 4, 5},
-		},{
+		}, {
 			input:  "",
 			output: []interface{}{},
 		},
@@ -104,12 +105,17 @@ func TestGetIntJSON(t *testing.T) {
 		}, {
 			input:  []byte(`{"params":{"data":"potato"}}`),
 			target: []interface{}{"params", "data"},
-			output: -1,
+			output: 0,
 			status: errors.New("got non-float item - potato"),
+		}, {
+			input:  []byte(`{"params":{"data":"1"}}`),
+			target: []interface{}{"params", "data"},
+			output: 1,
+			status: nil,
 		}, {
 			input:  []byte(`{"params":{"data":"potato"}}`),
 			target: []interface{}{"bad", "address"},
-			output: -1,
+			output: 0,
 			status: errors.New("bad item - non-existant map position"),
 		},
 	}

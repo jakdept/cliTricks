@@ -68,7 +68,7 @@ func runRequest(c http.Client, b []byte, out io.Writer, opts config) (bool, erro
 		return true, nil
 	}
 
-	err = json.Unmarshal(respBytes, respData)
+	err = json.Unmarshal(respBytes, &respData)
 	if err != nil {
 		return false, fmt.Errorf("response not json - %v", err)
 	}
@@ -106,142 +106,21 @@ func loopRequest(reqData interface{}, out io.Writer, opts config) error {
 		}
 
 		// finally increment
-		if len(opts.locCur) <= 0 {
+		if len(opts.locReq) <= 0 {
 			return nil
 		}
-		reqPage, err := cliTricks.GetInt(reqData, opts.locCur)
+		reqPage, err := cliTricks.GetInt(reqData, opts.locReq)
 		if err != nil {
 			return fmt.Errorf("failed to get the current page number before increment - %v", err)
 		}
 		reqPage += opts.locInc
-		cliTricks.SetItem(reqData, opts.locCur, reqPage)
+		cliTricks.SetItem(reqData, opts.locReq, reqPage)
 		if err != nil {
 			return fmt.Errorf("failed to set the current page number after increment - %v", err)
 		}
 	}
 	return nil
 }
-
-/*
-func loopRequest(requestData interface{}, out io.Writer, opts config) (err error) {
-
-	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
-	if err != nil {
-		return err
-	}
-	client := http.Client{Jar: jar}
-
-	requestBytes, err := json.Marshal(requestData)
-	if err != nil {
-		return err
-	}
-
-	request, err := http.NewRequest("POST", opts.url, bytes.NewReader(requestBytes))
-	if err != nil {
-		return err
-	}
-
-	if opts.username != "" && opts.password != "" {
-		request.SetBasicAuth(opts.username, opts.password)
-	}
-
-	response, err := client.Do(request)
-	if err != nil {
-		return err
-	}
-
-	var responseBytes []byte
-	var responseData interface{}
-
-	_, err = response.Body.Read(responseBytes)
-	if err != nil {
-		return err
-	}
-
-	_, err = out.Write(responseBytes)
-	if err != nil {
-		return err
-	}
-
-	err = json.Unmarshal(responseBytes, responseData)
-	if err != nil {
-		return err
-	}
-
-	_, err = out.Write(responseBytes)
-	if err != nil {
-		return err
-	}
-
-	if len(opts.locReq) < 1 && len(opts.locCur) < 1 && len(opts.locTotal) < 1 {
-		return nil
-	}
-
-	var reqPage, curPage, totalPage int
-
-	if len(opts.locReq) > 0 {
-		reqPage, err = cliTricks.GetInt(requestData, opts.locReq)
-		if err != nil {
-			return fmt.Errorf("bad request page - %v", err)
-		}
-	} else {
-		reqPage = 1
-	}
-
-	if len(opts.locCur) > 0 {
-		curPage, err = cliTricks.GetInt(requestData, opts.locCur)
-		if err != nil {
-			return fmt.Errorf("bad current page - %v", err)
-		}
-	} else {
-		curPage = 1
-	}
-
-	if len(opts.locTotal) > 0 {
-		totalPage, err = cliTricks.GetInt(requestData, opts.locTotal)
-		if err != nil {
-			return fmt.Errorf("bad total page - %v", err)
-		}
-	} else {
-		totalPage = 1
-	}
-
-	for reqPage < totalPage {
-		curPage += opts.locInc
-		err = cliTricks.SetItem(requestData, opts.locReq, opts.locCur)
-		if err != nil {
-			fmt.Errorf("failed to set the current page - %v", err)
-		}
-
-		requestBytes, err = json.Marshal(requestData)
-		if err != nil {
-			return err
-		}
-
-		request.Body = ioutil.NopCloser(bytes.NewReader(requestBytes))
-		response, err = client.Do(request)
-		if err != nil {
-			return err
-		}
-
-		_, err = response.Body.Read(responseBytes)
-		if err != nil {
-			return err
-		}
-
-		err = json.Unmarshal(responseBytes, responseData)
-		if err != nil {
-			return err
-		}
-
-		curPage, err = cliTricks.GetInt(requestData, opts.locCur)
-		if err != nil {
-			return fmt.Errorf("bad current page - %v", err)
-		}
-	}
-	return nil
-}
-*/
 
 func ApiJsonRoundTrip(in io.Reader, out io.Writer, opt config) (err error) {
 	var requestData interface{}

@@ -19,9 +19,10 @@ func (e typeError) Error() string { return fmt.Sprintf("wrong data type. a %s wa
 
 func BreakupArray(input string) []interface{} {
 	// handle a bug when no input
-	if input == ""{
+	if input == "" {
 		return []interface{}{}
 	}
+
 	if strings.HasPrefix(input, "[") && strings.HasSuffix(input, "]") {
 		input = strings.TrimPrefix(input, "[")
 		input = strings.TrimSuffix(input, "]")
@@ -51,16 +52,24 @@ func BreakupArray(input string) []interface{} {
 }
 
 func GetInt(data interface{}, target []interface{}) (int, error) {
-	var ok bool
-	var value float64
 	tempItem, err := GetItem(data, target)
 	if err != nil {
-		return -1, fmt.Errorf("bad item - %v", err)
+		return 0, fmt.Errorf("bad item - %v", err)
 	}
-	if value, ok = tempItem.(float64); !ok {
-		return -1, fmt.Errorf("got non-float item - %s", tempItem)
+	switch item := tempItem.(type) {
+	case int:
+		return item, nil
+	case float64:
+		return int(item), nil
+	case string:
+		f, err := strconv.ParseFloat(item, 64)
+		if err != nil {
+			return 0, fmt.Errorf("got non-float item - %s", tempItem)
+		}
+		return int(f), nil
+	default:
+		return 0, fmt.Errorf("got unknown typed item - %s", tempItem)
 	}
-	return int(value), nil
 }
 
 func GetItem(data interface{}, target []interface{}) (interface{}, error) {
