@@ -1,11 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"io"
-	"os"
-	"encoding/json"
 	"log"
+	"os"
 )
 
 func PrettyPrint(in io.Reader, out io.Writer, indent string) (err error) {
@@ -22,7 +22,6 @@ func PrettyPrint(in io.Reader, out io.Writer, indent string) (err error) {
 			return err
 		}
 		out.Write(writeBuf)
-		out.Write([]byte("\n"))
 	}
 	if err == io.EOF {
 		return nil
