@@ -5,23 +5,24 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
-	"github.com/JackKnifed/cliTricks"
-	"golang.org/x/net/publicsuffix"
 	"io"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/cookiejar"
-	"log"
 	"os"
+
+	"github.com/JackKnifed/cliTricks"
+	"golang.org/x/net/publicsuffix"
 )
 
 type config struct {
 	username string
 	password string
 	url      string
-	locReq   []string
-	locCur   []string
-	locTotal []string
+	locReq   []interface{}
+	locCur   []interface{}
+	locTotal []interface{}
 	locInc   int
 }
 
@@ -110,7 +111,7 @@ func loopRequest(requestData interface{}, out io.Writer, opts config) (err error
 
 	for reqPage < totalPage {
 		curPage += opts.locInc
-		err = cliTricks.SetItem(requestData, curPage, opts.locCur)
+		err = cliTricks.SetItem(requestData, opts.locReq, opts.locCur)
 		if err != nil {
 			fmt.Errorf("failed to set the current page - %v", err)
 		}
@@ -172,7 +173,7 @@ func main() {
 	locCurString := flag.String("currentPage", "", "location in the response of the page returned")
 	locTotalString := flag.String("totalPage", "", "location in the response of the total pages")
 	username := flag.String("username", "", "username to use for authentication")
-	password := flag.String("username", "", "username to use for authentication")
+	password := flag.String("password", "", "username to use for authentication")
 	url := flag.String("url", "", "url location to direct POSt")
 	locInc := flag.Int("pageIncrement", 1, "number to increase location request by")
 
@@ -183,9 +184,9 @@ func main() {
 		password: *password,
 		url:      *url,
 		locInc:   *locInc,
-		locReq:   cliTricks.BreakupStringArray(*locReqString),
-		locCur:   cliTricks.BreakupStringArray(*locCurString),
-		locTotal: cliTricks.BreakupStringArray(*locTotalString),
+		locReq:   cliTricks.BreakupArray(*locReqString),
+		locCur:   cliTricks.BreakupArray(*locCurString),
+		locTotal: cliTricks.BreakupArray(*locTotalString),
 	}
 
 	err := ApiJsonRoundTrip(os.Stdin, os.Stdout, opts)
