@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/http/cookiejar"
 	"os"
+	"time"
 
 	"github.com/JackKnifed/cliTricks"
 	"golang.org/x/net/publicsuffix"
@@ -20,6 +21,7 @@ type config struct {
 	username string
 	password string
 	url      string
+	delay    time.Duration
 	locReq   []interface{}
 	locCur   []interface{}
 	locTotal []interface{}
@@ -118,6 +120,7 @@ func loopRequest(reqData interface{}, out io.Writer, opts config) error {
 		if err != nil {
 			return fmt.Errorf("failed to set the current page number after increment - %v", err)
 		}
+		time.Sleep(opts.delay)
 	}
 	return nil
 }
