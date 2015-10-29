@@ -8,21 +8,23 @@ Usage
 
 ```bash
 $ apicat --help
-Usage of apicat:
+Usage of ./apicat:
   -currentPage string
-    	location in the response of the page returned
+      location in the response of the page returned
+  -delay int
+      seconds to wait between subsequent requests
   -pageIncrement int
-    	number to increase location request by (default 1)
+      number to increase location request by (default 1)
   -password string
-    	username to use for authentication
+      username to use for authentication
   -requestedPage string
-    	location in the request of the page
+      location in the request of the page
   -totalPage string
-    	location in the response of the total pages
+      location in the response of the total pages
   -url string
-    	url location to direct POSt
+      url location to direct POSt
   -username string
-    	username to use for authentication
+      username to use for authentication
 ```
 
 Example
