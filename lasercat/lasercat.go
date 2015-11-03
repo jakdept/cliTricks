@@ -39,6 +39,7 @@ func jsonDecoder(in io.Reader, out io.Writer, t [][]interface{}) (err error) {
 		if err != nil {
 			return err
 		}
+		line = []string{}
 		for _, oneTarget := range t {
 			item, err = cliTricks.GetItem(requestData, oneTarget)
 			if err != nil {
@@ -48,9 +49,8 @@ func jsonDecoder(in io.Reader, out io.Writer, t [][]interface{}) (err error) {
 
 		}
 		out.Write([]byte(strings.Join(line, " ")))
+		out.Write([]byte("\n"))
 	}
-
-	out.Write([]byte("\n"))
 
 	return err
 }

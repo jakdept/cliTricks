@@ -102,3 +102,9 @@ This of course leaves you free to pretty it yourself.
   ]
 }
 ```
+
+Bugs
+----
+
+* There must be a newline at the end of output - the last line is ignored.
+* Blank lines are not ignored.
