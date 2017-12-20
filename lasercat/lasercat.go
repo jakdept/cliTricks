@@ -7,6 +7,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/JackKnifed/cliTricks"
@@ -45,8 +46,18 @@ func jsonDecoder(in io.Reader, out io.Writer, t [][]interface{}) (err error) {
 			if err != nil {
 				return err
 			}
-			line = append(line, fmt.Sprintf("%s", item))
-
+			switch tItem := item.(type) {
+			case int:
+				line = append(line, strconv.Itoa(int(tItem)))
+			case float64:
+				if tItem == float64(int64(tItem)) {
+					line = append(line, strconv.Itoa(int(tItem)))
+				} else {
+					line = append(line, fmt.Sprintf("%f", tItem))
+				}
+			default:
+				line = append(line, fmt.Sprintf("%s", item))
+			}
 		}
 		out.Write([]byte(strings.Join(line, " ")))
 		out.Write([]byte("\n"))
