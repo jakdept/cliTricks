@@ -47,7 +47,7 @@ func runRequest(c http.Client, b []byte, out io.Writer, opts config) (bool, erro
 
 	// some cheap handling for the request
 	if resp.StatusCode != 200 {
-		return false, fmt.Errorf("got a non-200 response from the api server - %s", resp.StatusCode)
+		return false, fmt.Errorf("got a %d response from the api server - %s", resp.StatusCode, resp.Status)
 	}
 
 	respBytes, err := ioutil.ReadAll(resp.Body)
