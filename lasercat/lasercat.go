@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/JackKnifed/cliTricks"
+	"github.com/davecgh/go-spew/spew"
 )
 
 // Define a type named "stringSlice" as a slice of strings
@@ -44,7 +45,8 @@ func jsonDecoder(in io.Reader, out io.Writer, t [][]interface{}) (err error) {
 		for _, oneTarget := range t {
 			item, err = cliTricks.GetItem(requestData, oneTarget)
 			if err != nil {
-				return err
+				return fmt.Errorf("looking for [%s] in below - %v\n%s\n",
+					oneTarget, err, spew.Sdump(requestData))
 			}
 			switch tItem := item.(type) {
 			case int:

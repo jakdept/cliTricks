@@ -42,7 +42,7 @@ func runRequest(c http.Client, b []byte, out io.Writer, opts config) (bool, erro
 
 	resp, err := c.Do(req)
 	if err != nil {
-		return false, fmt.Errorf("cannot send request - %v", err)
+		return false, fmt.Errorf("cannot send to [%s] - %v", req.URL.String(), err)
 	}
 
 	// some cheap handling for the request
