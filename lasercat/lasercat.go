@@ -57,6 +57,8 @@ func jsonDecoder(in io.Reader, out io.Writer, t [][]interface{}) (err error) {
 				} else {
 					line = append(line, fmt.Sprintf("%f", tItem))
 				}
+			case nil:
+				line = append(line, "null")
 			default:
 				line = append(line, fmt.Sprintf("%s", item))
 			}
