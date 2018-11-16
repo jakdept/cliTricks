@@ -13,7 +13,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/JackKnifed/cliTricks"
+	"github.com/jakdept/cliTricks"
 	"golang.org/x/net/publicsuffix"
 )
 

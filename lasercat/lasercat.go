@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/JackKnifed/cliTricks"
+	"github.com/jakdept/cliTricks"
 	"github.com/davecgh/go-spew/spew"
 )
 
