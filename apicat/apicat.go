@@ -156,7 +156,7 @@ func main() {
 	password := flag.String("password", "", "username to use for authentication")
 	url := flag.String("url", "", "url location to direct POSt")
 	locInc := flag.Int("pageIncrement", 1, "number to increase location request by")
-	delay := flag.Int("delay", 0, "seconds to wait between subsequent requests")
+	delay := flag.Int("delay", 100, "milliseconds to wait between subsequent requests")
 
 	flag.Parse()
 
@@ -168,7 +168,7 @@ func main() {
 		locReq:   cliTricks.BreakupArray(*locReqString),
 		locCur:   cliTricks.BreakupArray(*locCurString),
 		locTotal: cliTricks.BreakupArray(*locTotalString),
-		delay:    time.Duration(*delay) * time.Second,
+		delay:    time.Duration(*delay) * time.Millisecond,
 	}
 
 	err := ApiJsonRoundTrip(os.Stdin, os.Stdout, opts)

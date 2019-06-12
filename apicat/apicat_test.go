@@ -1,14 +1,9 @@
 package main
 
-import(
+import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"github.com/stretchr/testify/assert"
-	"os"
-	"reflect"
-	"testing"
-	)
+)
 
 func ExampleGetItem() {
 	testBytes := []byte(`{"Everything":"Awesome","Team":{"Everything":"Cool"}}`)
